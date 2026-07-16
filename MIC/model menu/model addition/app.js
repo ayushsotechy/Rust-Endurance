@@ -458,7 +458,6 @@ document.querySelectorAll('[data-signout]').forEach((button) => {
 sectionTabs.addEventListener('click', (event) => {
   const button = event.target.closest('[data-section]');
   if (!button || button.dataset.section === activeSectionId) return;
-  persistControls();
   renderSection(button.dataset.section);
 });
 
