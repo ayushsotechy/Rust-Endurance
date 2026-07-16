@@ -4,9 +4,15 @@ const homeHref = `${window.location.origin}/`;
 const sectionTabs = document.querySelector('#sectionTabs');
 const sectionTitle = document.querySelector('#sectionTitle');
 const sectionBody = document.querySelector('#sectionBody');
+const commonDetailsSectionId = 'common_form';
 let toastTimer;
 let activeSectionId = 'work_start_up_inspection';
 let activePhaseBySection = {
+  [commonDetailsSectionId]: '0 Phase',
+  work_start_up_inspection: '0 Phase',
+  first_phase_observation_sheet: '0 Phase',
+  operation_durability_cycles: '0 Phase',
+  corrosion_coupon_measurement: '0 Phase',
   scribe_line_measurement: '0 Phase',
   crs_check_sheet: '0 Phase',
   dismantling_inspection: '0 Phase',
@@ -206,7 +212,7 @@ const sections = {
         legacyRadioCell(),
         '5',
         { text: 'Battery\nAuxiliary battery (electric vehicle, hybrid electric vehicle)', className: 'multiline-cell' },
-        { text: '• Leak\n• Fluid level\n• Terminal voltage (electric vehicle, hybrid electric vehicle) (     ) V', className: 'multiline-cell' }
+        { text: 'Check 1  Leak\nCheck 2  Fluid level\nCheck 3  Terminal voltage (electric vehicle, hybrid electric vehicle) (     ) V', className: 'multiline-cell' }
       ],
       [legacyRadioCell(), '6', 'Fuel', 'Leak'],
       [
@@ -214,7 +220,7 @@ const sections = {
         '7',
         'Brake',
         {
-          text: '• Leak\n• Parking brake lever pulling stroke (     ) teeth\n• Foot brake pedal stroke allowance when treading to end (     ) mm\n• Foot brake pedal end play stroke 1–8 mm\n• Fluid level',
+          text: 'Check 1  Leak\nCheck 2  Parking brake lever pulling stroke (     ) teeth\nCheck 3  Foot brake pedal stroke allowance when treading to end (     ) mm\nCheck 4  Foot brake pedal end play stroke 1–8 mm\nCheck 5  Fluid level',
           className: 'multiline-cell'
         }
       ],
@@ -230,14 +236,14 @@ const sections = {
         legacyRadioCell(),
         '11',
         'Tire',
-        { text: '• Abnormal wear, damage\n• Air pressure', className: 'multiline-cell' }
+        { text: 'Check 1  Abnormal wear, damage\nCheck 2  Air pressure', className: 'multiline-cell' }
       ],
       [legacyRadioCell(), '12', 'Exhaust gas', 'Leak, smoke color, smoke volume'],
       [
         legacyRadioCell(),
         '13',
         'Steering',
-        { text: '• Looseness, noise, abnormal heaviness during operation\n• Play', className: 'multiline-cell' }
+        { text: 'Check 1  Looseness, noise, abnormal heaviness during operation\nCheck 2  Play', className: 'multiline-cell' }
       ],
       [legacyRadioCell(), '14', 'Door lock, hood lock', 'Operation'],
       [legacyRadioCell(), '15', 'Mirror, sun visor', 'Operation, retention'],
@@ -341,8 +347,20 @@ const sections = {
       [{ type: 'radio' }, 'P-03', 'Underbody', 'Pending'],
       [{ type: 'radio' }, 'P-04', 'Close-up rust area', 'Pending']
     ]
+  },
+  [commonDetailsSectionId]: {
+    title: 'Common Form',
+    formOnly: true
   }
 };
+
+const phaseLinkedSectionIds = Object.keys(sections).filter((sectionId) => sectionId !== commonDetailsSectionId);
+
+const sharedPhase = activePhaseBySection[commonDetailsSectionId] || phaseOptions[0];
+activePhaseBySection[commonDetailsSectionId] = sharedPhase;
+phaseLinkedSectionIds.forEach((sectionId) => {
+  activePhaseBySection[sectionId] = sharedPhase;
+});
 
 if (persistedState.activeSectionId && persistedState.activeSectionId in sections) {
   activeSectionId = persistedState.activeSectionId;
@@ -478,24 +496,29 @@ function renderField(field) {
   `;
 }
 
-function getSharedFields(sectionId) {
-  const config = sections[sectionId];
-  if (config.preserveLocal) return localDetailFields;
+function getCommonFields() {
+  const applicableChecksheetOptions = Object.entries(sections)
+    .filter(([sectionId, config]) => !config.formOnly && sectionId !== commonDetailsSectionId)
+    .map(([, config]) => config.title);
 
   return sharedDetailFields.map((field) => {
     if (field.name === 'applicableChecksheet') {
-      return { ...field, options: [config.title] };
+      return { ...field, options: applicableChecksheetOptions };
     }
     return field;
   });
 }
 
-function renderSharedDetailsForm(sectionId) {
+function renderCommonDetailsForm() {
   return `
-    <form class="addition-form layout-standard">
-      ${getSharedFields(sectionId).map(renderField).join('')}
-      <button class="primary-button plan-button" type="button" data-plan data-section="${sectionId}">Plan</button>
-    </form>
+    <section class="sheet-detail common-form-sheet" aria-label="Common form">
+      <form class="addition-form layout-standard">
+        ${getCommonFields().map(renderField).join('')}
+      </form>
+      <div class="sheet-actions">
+        <button class="primary-button save-sheet" type="button" data-save-common>Save</button>
+      </div>
+    </section>
   `;
 }
 
@@ -773,8 +796,7 @@ function renderSection(sectionId) {
   persistedState.activeSectionId = sectionId;
   sectionTitle.textContent = config.title;
   sectionBody.innerHTML = `
-    ${renderSharedDetailsForm(sectionId)}
-    ${config.phaseSheet ? renderPhaseSheet(sectionId, config) : renderTable(config.columns, config.rows, config.legacyTable)}
+    ${sectionId === commonDetailsSectionId ? renderCommonDetailsForm() : renderPhaseSheet(sectionId, config)}
   `;
 
   sectionTabs.querySelectorAll('[data-section]').forEach((button) => {
@@ -782,21 +804,26 @@ function renderSection(sectionId) {
     button.setAttribute('aria-pressed', String(button.dataset.section === sectionId));
   });
 
-  const planButton = sectionBody.querySelector('[data-plan]');
-  if (planButton) {
-    planButton.addEventListener('click', () => {
-      window.location.href = `./plan/?section=${encodeURIComponent(sectionId)}`;
-    });
-  }
-
   const phaseSelect = sectionBody.querySelector('[data-phase-select]');
   if (phaseSelect) {
     phaseSelect.addEventListener('change', () => {
       persistControls();
-      activePhaseBySection[sectionId] = phaseSelect.value || phaseOptions[0];
+      const nextPhase = phaseSelect.value || phaseOptions[0];
+      activePhaseBySection[commonDetailsSectionId] = nextPhase;
+      phaseLinkedSectionIds.forEach((linkedSectionId) => {
+        activePhaseBySection[linkedSectionId] = nextPhase;
+      });
       persistedState.activePhaseBySection = { ...activePhaseBySection };
       saveState();
       renderSection(sectionId);
+    });
+  }
+
+  const saveCommonButton = sectionBody.querySelector('[data-save-common]');
+  if (saveCommonButton) {
+    saveCommonButton.addEventListener('click', () => {
+      persistControls();
+      showToast('Common form saved');
     });
   }
 
