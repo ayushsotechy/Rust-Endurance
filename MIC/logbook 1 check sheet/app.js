@@ -1,5 +1,6 @@
 const profileButton = document.querySelector('#profileButton');
 const profileMenu = document.querySelector('#profileMenu');
+const homeHref = `${window.location.origin}/`;
 const rowsElement = document.querySelector('#logbookRows');
 const emptyState = document.querySelector('#emptyState');
 const toast = document.querySelector('#toast');
@@ -75,6 +76,12 @@ document.addEventListener('keydown', (event) => {
     closeProfileMenu();
     profileButton.focus();
   }
+});
+
+document.querySelectorAll('[data-signout]').forEach((button) => {
+  button.addEventListener('click', () => {
+    window.location.href = homeHref;
+  });
 });
 
 form.addEventListener('submit', (event) => {

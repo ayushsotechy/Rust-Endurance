@@ -1,5 +1,6 @@
 const profileButton = document.querySelector('#profileButton');
 const profileMenu = document.querySelector('#profileMenu');
+const homeHref = `${window.location.origin}/`;
 const rowsElement = document.querySelector('#modelRows');
 const emptyState = document.querySelector('#emptyState');
 const recordCount = document.querySelector('#recordCount');
@@ -43,6 +44,11 @@ profileButton.addEventListener('click', (event) => {
   profileButton.setAttribute('aria-expanded', String(open));
 });
 document.addEventListener('click', (event) => { if (!profileMenu.contains(event.target)) { profileMenu.hidden = true; profileButton.setAttribute('aria-expanded', 'false'); } });
+document.querySelectorAll('[data-signout]').forEach((button) => {
+  button.addEventListener('click', () => {
+    window.location.href = homeHref;
+  });
+});
 
 document.querySelector('#searchForm').addEventListener('submit', (event) => {
   event.preventDefault();

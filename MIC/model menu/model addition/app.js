@@ -1,5 +1,6 @@
 const profileButton = document.querySelector('#profileButton');
 const profileMenu = document.querySelector('#profileMenu');
+const homeHref = `${window.location.origin}/`;
 const planButton = document.querySelector('.plan-button');
 let toastTimer;
 
@@ -24,6 +25,12 @@ document.addEventListener('keydown', (event) => {
     closeProfileMenu();
     profileButton.focus();
   }
+});
+
+document.querySelectorAll('[data-signout]').forEach((button) => {
+  button.addEventListener('click', () => {
+    window.location.href = homeHref;
+  });
 });
 
 planButton.addEventListener('click', () => {
