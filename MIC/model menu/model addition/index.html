@@ -56,137 +56,23 @@
         </section>
 
         <div class="addition-layout">
-          <aside class="step-rail" aria-label="Check sheet sections">
-            <button class="step-item active" type="button">Work Start up Inspection</button>
-            <button class="step-item" type="button">1st phase observation sheet</button>
-            <button class="step-item" type="button">Operation Durability Cycles</button>
-            <button class="step-item" type="button">Corrosion Coupon data measurement</button>
-            <button class="step-item" type="button">Scribe line measurement</button>
-            <button class="step-item" type="button">CRS check sheet</button>
-            <button class="step-item" type="button">Dismantling inspection sheet filled</button>
-            <button class="step-item" type="button">Photo Annexure</button>
+          <aside class="step-rail" aria-label="Check sheet sections" id="sectionTabs">
+            <button class="step-item active" type="button" data-section="work_start_up_inspection">Work Start up Inspection</button>
+            <button class="step-item" type="button" data-section="first_phase_observation_sheet">1st phase observation sheet</button>
+            <button class="step-item" type="button" data-section="operation_durability_cycles">Operation Durability Cycles</button>
+            <button class="step-item" type="button" data-section="corrosion_coupon_measurement">Corrosion Coupon data measurement</button>
+            <button class="step-item" type="button" data-section="scribe_line_measurement">Scribe line measurement</button>
+            <button class="step-item" type="button" data-section="crs_check_sheet">CRS check sheet</button>
+            <button class="step-item" type="button" data-section="dismantling_inspection">Dismantling inspection sheet filled</button>
+            <button class="step-item" type="button" data-section="photo_annexure">Photo Annexure</button>
           </aside>
 
           <section class="addition-content" aria-label="Model addition form">
-            <form class="addition-form">
-              <label>
-                <span>Model Code:</span>
-                <input type="text" placeholder="" />
-              </label>
-              <label>
-                <span>Chassis No</span>
-                <input type="text" placeholder="" />
-              </label>
-              <label>
-                <span>Temp Symbol:</span>
-                <input type="text" placeholder="" />
-              </label>
-
-              <label class="select-field">
-                <span>Location</span>
-                <select>
-                  <option value=""></option>
-                  <option>Lab A</option>
-                  <option>Lab B</option>
-                  <option>Chamber 2</option>
-                </select>
-              </label>
-              <label class="select-field">
-                <span>Test Type:</span>
-                <select>
-                  <option value=""></option>
-                  <option>Cyclic corrosion</option>
-                  <option>Salt spray</option>
-                  <option>Humidity</option>
-                </select>
-              </label>
-              <label>
-                <span>Test Type:</span>
-                <input type="text" placeholder="" />
-              </label>
-
-              <label class="trail-group">
-                <span>Trail:</span>
-                <div class="dual-selects">
-                  <select>
-                    <option value=""></option>
-                    <option>T1</option>
-                    <option>T2</option>
-                    <option>P1</option>
-                  </select>
-                  <select>
-                    <option value=""></option>
-                    <option>Phase 1</option>
-                    <option>Phase 2</option>
-                    <option>Phase 3</option>
-                  </select>
-                </div>
-              </label>
-              <label class="select-field wide-mid">
-                <span>Applicable checksheet</span>
-                <select>
-                  <option value=""></option>
-                  <option>Work Start up Inspection</option>
-                  <option>1st phase observation sheet</option>
-                  <option>CRS check sheet</option>
-                </select>
-              </label>
-              <label class="wide-right">
-                <span>Remarks</span>
-                <input type="text" placeholder="" />
-              </label>
-
-              <label class="select-field wide-left">
-                <span>Phases:</span>
-                <select>
-                  <option value=""></option>
-                  <option>Phase 1</option>
-                  <option>Phase 2</option>
-                  <option>Phase 3</option>
-                </select>
-              </label>
-
-              <button class="primary-button plan-button" type="button">Plan</button>
-            </form>
-
-            <div class="table-frame">
-              <table>
-                <thead>
-                  <tr>
-                    <th>Applicable</th>
-                    <th>Sl No.</th>
-                    <th>Category</th>
-                    <th>Check points</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td><label class="radio-cell"><input type="radio" name="applicable" /><span></span></label></td>
-                    <td>1</td>
-                    <td>Water pump belt or</td>
-                    <td>Crack, damage</td>
-                  </tr>
-                  <tr>
-                    <td><label class="radio-cell"><input type="radio" name="applicable" /><span></span></label></td>
-                    <td>2</td>
-                    <td>Alternator belt</td>
-                    <td>Tension</td>
-                  </tr>
-                  <tr>
-                    <td><label class="radio-cell"><input type="radio" name="applicable" /><span></span></label></td>
-                    <td>3</td>
-                    <td>Engine oil</td>
-                    <td>Leak</td>
-                  </tr>
-                  <tr>
-                    <td><label class="radio-cell"><input type="radio" name="applicable" /><span></span></label></td>
-                    <td>4</td>
-                    <td>Coolant hose</td>
-                    <td>Bulge, seepage</td>
-                  </tr>
-                </tbody>
-              </table>
+            <div class="section-banner">
+              <span>MIC Checksheet Builder</span>
+              <h2 id="sectionTitle">Work Start up Inspection</h2>
             </div>
+            <div id="sectionBody"></div>
           </section>
         </div>
 
