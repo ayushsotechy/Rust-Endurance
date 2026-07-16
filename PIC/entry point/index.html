@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Rust Endurance PIC portal" />
+    <title>Rust Endurance | PIC Menu</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="topbar">
+        <a class="brand" href="../../" aria-label="Rust Endurance home">
+          <svg class="brand-mark" viewBox="0 0 52 48" role="img" aria-label="Suzuki mark">
+            <path d="M25 1 48 17 36 25 13 9 25 1Z" />
+            <path d="M16 21 39 37 27 45 4 29 16 21Z" />
+          </svg>
+          <span>MARUTI SUZUKI</span>
+        </a>
+
+        <div class="account-area">
+          <div class="powered-by" aria-label="Powered by DE">
+            <span>Powered by</span>
+            <strong>DE</strong>
+            <span class="de-mark" aria-hidden="true">››</span>
+          </div>
+          <span class="divider" aria-hidden="true"></span>
+          <div class="avatar" aria-hidden="true">SS</div>
+          <button class="profile-button" id="profileButton" type="button" aria-expanded="false" aria-controls="profileMenu">
+            <span class="profile-copy">
+              <strong>Maruti ABC</strong>
+              <span>124</span>
+            </span>
+            <span class="chevron" aria-hidden="true">
+              <svg viewBox="0 0 20 20"><path d="m5.5 7.5 4.5 4.5 4.5-4.5" /></svg>
+            </span>
+          </button>
+
+          <div class="profile-menu" id="profileMenu" role="menu" hidden>
+            <div class="profile-menu__heading">
+              <span class="mini-avatar">SS</span>
+              <span><strong>Maruti ABC</strong><small>Employee ID 124</small></span>
+            </div>
+            <button type="button" role="menuitem">View profile</button>
+            <button type="button" role="menuitem">Sign out</button>
+          </div>
+        </div>
+      </header>
+
+      <main>
+        <section class="menu-panel" aria-labelledby="pageTitle">
+          <div class="title-block">
+            <span class="eyebrow">Rust Endurance Portal</span>
+            <h1 id="pageTitle">QA-ND PIC Menu</h1>
+            <p>Select a module to get started</p>
+          </div>
+
+          <div class="menu-grid" id="menuGrid">
+            <button class="menu-card" type="button" data-module="Model menu">
+              <span class="card-icon" aria-hidden="true">
+                <svg viewBox="0 0 32 32"><path d="M7 9h9M7 16h18M7 23h18" /></svg>
+              </span>
+              <span class="card-label">Model menu</span>
+              <span class="card-action" aria-hidden="true">Open <b>→</b></span>
+            </button>
+
+            <button class="menu-card" type="button" data-module="Logbook 1 Check sheet">
+              <span class="card-icon" aria-hidden="true">
+                <svg viewBox="0 0 32 32"><rect x="5" y="6" width="8" height="8" rx="1.5" /><path d="M17 8h10M17 13h8M5 22l3 3 5-6M17 21h10M17 26h8" /></svg>
+              </span>
+              <span class="card-label">Logbook 1<br />Check sheet</span>
+              <span class="card-action" aria-hidden="true">Open <b>→</b></span>
+            </button>
+
+            <button class="menu-card" type="button" data-module="Logbook 2 Check sheet">
+              <span class="card-icon" aria-hidden="true">
+                <svg viewBox="0 0 32 32"><rect x="5" y="6" width="8" height="8" rx="1.5" /><path d="M17 8h10M17 13h8M5 22l3 3 5-6M17 21h10M17 26h8" /></svg>
+              </span>
+              <span class="card-label">Logbook 2<br />Check sheet</span>
+              <span class="card-action" aria-hidden="true">Open <b>→</b></span>
+            </button>
+
+            <button class="menu-card" type="button" data-module="Logbook 3 Check sheet">
+              <span class="card-icon" aria-hidden="true">
+                <svg viewBox="0 0 32 32"><rect x="5" y="6" width="8" height="8" rx="1.5" /><path d="M17 8h10M17 13h8M5 22l3 3 5-6M17 21h10M17 26h8" /></svg>
+              </span>
+              <span class="card-label">Logbook 3<br />Check sheet</span>
+              <span class="card-action" aria-hidden="true">Open <b>→</b></span>
+            </button>
+
+            <button class="menu-card" type="button" data-module="Check sheet Approval Request">
+              <span class="card-icon" aria-hidden="true">
+                <svg viewBox="0 0 32 32"><path d="M8 5h16a2 2 0 0 1 2 2v10M11 11h10M11 16h7M11 21h5M7 5h1v22h10" /><path d="m19 24 3 3 6-7" /></svg>
+              </span>
+              <span class="card-label">Check sheet<br />Approval Request</span>
+              <span class="card-action" aria-hidden="true">Open <b>→</b></span>
+            </button>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    <script src="./app.js"></script>
+  </body>
+</html>

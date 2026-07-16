@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Rust Endurance model addition" />
+    <title>Rust Endurance | Model Addition</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="topbar">
+        <a class="brand" href="../../entry%20point/" aria-label="Back to MIC menu">
+          <svg class="brand-mark" viewBox="0 0 52 48" aria-hidden="true">
+            <path d="M25 1 48 17 36 25 13 9 25 1Z" />
+            <path d="M16 21 39 37 27 45 4 29 16 21Z" />
+          </svg>
+          <span>MARUTI SUZUKI</span>
+        </a>
+
+        <div class="account-area">
+          <div class="powered-by" aria-label="Powered by DE">
+            <span>Powered by</span>
+            <strong>DE</strong>
+            <span class="de-mark" aria-hidden="true">››</span>
+          </div>
+          <span class="divider" aria-hidden="true"></span>
+          <div class="avatar" aria-hidden="true">SS</div>
+          <button class="profile-button" id="profileButton" type="button" aria-expanded="false" aria-controls="profileMenu">
+            <span class="profile-copy">
+              <strong>Maruti ABC</strong>
+              <span>124</span>
+            </span>
+            <span class="chevron" aria-hidden="true">
+              <svg viewBox="0 0 20 20"><path d="m5.5 7.5 4.5 4.5 4.5-4.5" /></svg>
+            </span>
+          </button>
+
+          <div class="profile-menu" id="profileMenu" role="menu" hidden>
+            <div class="profile-menu__heading">
+              <span class="mini-avatar">SS</span>
+              <span><strong>Maruti ABC</strong><small>Employee ID 124</small></span>
+            </div>
+            <button type="button" role="menuitem">View profile</button>
+            <button type="button" role="menuitem">Sign out</button>
+          </div>
+        </div>
+      </header>
+
+      <main class="page-panel">
+        <section class="page-heading" aria-labelledby="pageTitle">
+          <div>
+            <span>Logbook Management</span>
+            <h1 id="pageTitle">Model Addition</h1>
+          </div>
+        </section>
+
+        <div class="addition-layout">
+          <aside class="step-rail" aria-label="Check sheet sections">
+            <button class="step-item active" type="button">Work Start up Inspection</button>
+            <button class="step-item" type="button">1st phase observation sheet</button>
+            <button class="step-item" type="button">Operation Durability Cycles</button>
+            <button class="step-item" type="button">Corrosion Coupon data measurement</button>
+            <button class="step-item" type="button">Scribe line measurement</button>
+            <button class="step-item" type="button">CRS check sheet</button>
+            <button class="step-item" type="button">Dismantling inspection sheet filled</button>
+            <button class="step-item" type="button">Photo Annexure</button>
+          </aside>
+
+          <section class="addition-content" aria-label="Model addition form">
+            <form class="addition-form">
+              <label>
+                <span>Model Code:</span>
+                <input type="text" placeholder="" />
+              </label>
+              <label>
+                <span>Chassis No</span>
+                <input type="text" placeholder="" />
+              </label>
+              <label>
+                <span>Temp Symbol:</span>
+                <input type="text" placeholder="" />
+              </label>
+
+              <label class="select-field">
+                <span>Location</span>
+                <select>
+                  <option value=""></option>
+                  <option>Lab A</option>
+                  <option>Lab B</option>
+                  <option>Chamber 2</option>
+                </select>
+              </label>
+              <label class="select-field">
+                <span>Test Type:</span>
+                <select>
+                  <option value=""></option>
+                  <option>Cyclic corrosion</option>
+                  <option>Salt spray</option>
+                  <option>Humidity</option>
+                </select>
+              </label>
+              <label>
+                <span>Test Type:</span>
+                <input type="text" placeholder="" />
+              </label>
+
+              <label class="trail-group">
+                <span>Trail:</span>
+                <div class="dual-selects">
+                  <select>
+                    <option value=""></option>
+                    <option>T1</option>
+                    <option>T2</option>
+                    <option>P1</option>
+                  </select>
+                  <select>
+                    <option value=""></option>
+                    <option>Phase 1</option>
+                    <option>Phase 2</option>
+                    <option>Phase 3</option>
+                  </select>
+                </div>
+              </label>
+              <label class="select-field wide-mid">
+                <span>Applicable checksheet</span>
+                <select>
+                  <option value=""></option>
+                  <option>Work Start up Inspection</option>
+                  <option>1st phase observation sheet</option>
+                  <option>CRS check sheet</option>
+                </select>
+              </label>
+              <label class="wide-right">
+                <span>Remarks</span>
+                <input type="text" placeholder="" />
+              </label>
+
+              <label class="select-field wide-left">
+                <span>Phases:</span>
+                <select>
+                  <option value=""></option>
+                  <option>Phase 1</option>
+                  <option>Phase 2</option>
+                  <option>Phase 3</option>
+                </select>
+              </label>
+
+              <button class="primary-button plan-button" type="button">Plan</button>
+            </form>
+
+            <div class="table-frame">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Applicable</th>
+                    <th>Sl No.</th>
+                    <th>Category</th>
+                    <th>Check points</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><label class="radio-cell"><input type="radio" name="applicable" /><span></span></label></td>
+                    <td>1</td>
+                    <td>Water pump belt or</td>
+                    <td>Crack, damage</td>
+                  </tr>
+                  <tr>
+                    <td><label class="radio-cell"><input type="radio" name="applicable" /><span></span></label></td>
+                    <td>2</td>
+                    <td>Alternator belt</td>
+                    <td>Tension</td>
+                  </tr>
+                  <tr>
+                    <td><label class="radio-cell"><input type="radio" name="applicable" /><span></span></label></td>
+                    <td>3</td>
+                    <td>Engine oil</td>
+                    <td>Leak</td>
+                  </tr>
+                  <tr>
+                    <td><label class="radio-cell"><input type="radio" name="applicable" /><span></span></label></td>
+                    <td>4</td>
+                    <td>Coolant hose</td>
+                    <td>Bulge, seepage</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </section>
+        </div>
+
+        <a class="secondary-button" href="../">Go Back</a>
+      </main>
+    </div>
+
+    <script src="./app.js"></script>
+  </body>
+</html>

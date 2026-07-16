@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Rust Endurance logbook 1 check sheet" />
+    <title>Rust Endurance | Logbook 1 Check Sheet</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="topbar">
+        <a class="brand" href="../entry%20point/" aria-label="Back to PIC menu">
+          <svg class="brand-mark" viewBox="0 0 52 48" aria-hidden="true">
+            <path d="M25 1 48 17 36 25 13 9 25 1Z" />
+            <path d="M16 21 39 37 27 45 4 29 16 21Z" />
+          </svg>
+          <span>MARUTI SUZUKI</span>
+        </a>
+
+        <div class="account-area">
+          <div class="powered-by" aria-label="Powered by DE">
+            <span>Powered by</span>
+            <strong>DE</strong>
+            <span class="de-mark" aria-hidden="true">››</span>
+          </div>
+          <span class="divider" aria-hidden="true"></span>
+          <div class="avatar" aria-hidden="true">SS</div>
+          <button class="profile-button" id="profileButton" type="button" aria-expanded="false" aria-controls="profileMenu">
+            <span class="profile-copy">
+              <strong>Maruti ABC</strong>
+              <span>124</span>
+            </span>
+            <span class="chevron" aria-hidden="true">
+              <svg viewBox="0 0 20 20"><path d="m5.5 7.5 4.5 4.5 4.5-4.5" /></svg>
+            </span>
+          </button>
+
+          <div class="profile-menu" id="profileMenu" role="menu" hidden>
+            <div class="profile-menu__heading">
+              <span class="mini-avatar">SS</span>
+              <span><strong>Maruti ABC</strong><small>Employee ID 124</small></span>
+            </div>
+            <button type="button" role="menuitem">View profile</button>
+            <button type="button" role="menuitem">Sign out</button>
+          </div>
+        </div>
+      </header>
+
+      <main class="page-panel">
+        <section class="page-heading" aria-labelledby="pageTitle">
+          <div>
+            <span>Logbook Management</span>
+            <h1 id="pageTitle">Logbook 1 Check Sheet</h1>
+          </div>
+        </section>
+
+        <form class="filters" id="searchForm">
+          <label>
+            <span>From Date</span>
+            <div class="field-wrap">
+              <input id="fromDate" name="fromDate" type="date" />
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <rect x="3" y="5" width="18" height="16" rx="3" />
+                <path d="M8 3v4M16 3v4M3 10h18M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01" />
+              </svg>
+            </div>
+          </label>
+
+          <label>
+            <span>To Date</span>
+            <div class="field-wrap">
+              <input id="toDate" name="toDate" type="date" />
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <rect x="3" y="5" width="18" height="16" rx="3" />
+                <path d="M8 3v4M16 3v4M3 10h18M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01" />
+              </svg>
+            </div>
+          </label>
+
+          <button class="primary-button search-button" type="submit">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <circle cx="10.5" cy="10.5" r="6.5" />
+              <path d="m16 16 4.5 4.5" />
+            </svg>
+            Search
+          </button>
+        </form>
+
+        <section class="records" aria-labelledby="recordsTitle">
+          <div class="records-toolbar">
+            <div>
+              <h2 id="recordsTitle">Logbook records</h2>
+              <span>3 records</span>
+            </div>
+          </div>
+          <div class="table-frame">
+            <table>
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Model</th>
+                  <th>Chassis</th>
+                  <th>Status</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="logbookRows"></tbody>
+            </table>
+            <div class="empty-state" id="emptyState" hidden>
+              <span>⌕</span>
+              <strong>No matching check sheets</strong>
+              <p>Try widening the date range to bring records back.</p>
+            </div>
+          </div>
+        </section>
+
+        <a class="secondary-button" href="../entry%20point/">Go Back</a>
+      </main>
+    </div>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    <script src="./app.js"></script>
+  </body>
+</html>
