@@ -20,6 +20,8 @@ if (persistedState.activePhaseBySection) {
 }
 
 const phaseOptions = ['0 Phase', '0.5 Phase', '1 Phase', '2 Phase', '3 Phase', '4 Phase', '5 Phase', '6 Phase', '7 Phase', '8 Phase', '9 Phase', '10 Phase', '11 Phase', '12 Phase'];
+const phaseObservationRows = Array.from({ length: 13 }, (_, index) => `Phase ${index}`);
+const phaseObservationCriteriaOptions = Array.from({ length: 8 }, (_, index) => String(index + 3));
 const bodyPanels = ['Hood', 'Front fender', 'Front door', 'Rear door', 'Quarter panel', 'Back door', 'Roof'];
 const scribeDirections = ['Left: V', 'Left: H', 'Right: V', 'Right: H'];
 const crsRows = [
@@ -248,11 +250,7 @@ const sections = {
     preserveLocal: true,
     legacyTable: true,
     columns: ['Applicable', 'Sl No.', 'Observation', 'Criteria', 'Actual', 'Attachment'],
-    rows: [
-      [legacyRadioCell(), '1', '', '', '', ''],
-      [legacyRadioCell(), '1', '', '', '', ''],
-      [legacyRadioCell(), '1', '', '', '', '']
-    ]
+    phaseSheet: 'phase-observation'
   },
   operation_durability_cycles: {
     title: 'Operation Durability Cycles',
@@ -412,6 +410,7 @@ function controlKey(control, index) {
 function restoreControls() {
   sectionBody.querySelectorAll('input, select, textarea').forEach((control, index) => {
     if (control.matches('[data-phase-select]')) return;
+    if (control.type === 'file') return;
     const store = getValueStore(controlStoreKey(control));
     const key = controlKey(control, index);
     if (!(key in store)) return;
@@ -428,6 +427,7 @@ function restoreControls() {
 function persistControls() {
   sectionBody.querySelectorAll('input, select, textarea').forEach((control, index) => {
     if (control.matches('[data-phase-select]')) return;
+    if (control.type === 'file') return;
     const store = getValueStore(controlStoreKey(control));
     const key = controlKey(control, index);
     store[key] = control.type === 'checkbox' ? control.checked : control.value;
@@ -534,6 +534,58 @@ function renderTableCell(cell) {
   }
 
   return `<td>${cell ?? ''}</td>`;
+}
+
+function renderPhaseObservationSheet(sectionId, config) {
+  const activePhase = activePhaseBySection[sectionId] || phaseOptions[0];
+
+  return `
+    <section class="sheet-detail phase-observation-sheet" aria-label="${config.title} ${activePhase}">
+      <div class="table-frame phase-observation-frame">
+        <table class="phase-observation-table">
+          <thead>
+            <tr>
+              <th>Sl No.</th>
+              <th>Observation</th>
+              <th>Criteria</th>
+              <th>Actual</th>
+              <th>Attachment</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${phaseObservationRows.map((phaseLabel, index) => `
+              <tr>
+                <td class="phase-observation-index">${phaseLabel}</td>
+                <td><input type="text" aria-label="${phaseLabel} observation" /></td>
+                <td>
+                  <select aria-label="${phaseLabel} criteria">
+                    <option value=""></option>
+                    ${phaseObservationCriteriaOptions.map((option) => `<option>${option}</option>`).join('')}
+                  </select>
+                </td>
+                <td>
+                  <select aria-label="${phaseLabel} actual">
+                    <option value=""></option>
+                    ${phaseObservationCriteriaOptions.map((option) => `<option>${option}</option>`).join('')}
+                  </select>
+                </td>
+                <td>
+                  <label class="attachment-upload" aria-label="${phaseLabel} attachment upload">
+                    <input type="file" data-attachment-input />
+                    <span>Upload</span>
+                  </label>
+                </td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      </div>
+      <div class="sheet-actions">
+        <button class="primary-button save-sheet" type="button" data-save-sheet>Save</button>
+        <button class="primary-button submit-sheet" type="button" data-submit-sheet>Submit</button>
+      </div>
+    </section>
+  `;
 }
 
 function renderTable(columns, rows, legacyTable = false) {
@@ -706,6 +758,7 @@ function renderStandardPhaseSheet(sectionId, config) {
 }
 
 function renderPhaseSheet(sectionId, config) {
+  if (config.phaseSheet === 'phase-observation') return renderPhaseObservationSheet(sectionId, config);
   if (config.phaseSheet === 'scribe') return renderScribeMatrix(sectionId);
   if (config.phaseSheet === 'crs') return renderCrsSheet(sectionId);
   if (config.phaseSheet === 'dismantling') return renderDismantlingSheet(sectionId);
@@ -746,6 +799,17 @@ function renderSection(sectionId) {
       renderSection(sectionId);
     });
   }
+
+  sectionBody.querySelectorAll('[data-attachment-input]').forEach((input) => {
+    input.addEventListener('change', () => {
+      const label = input.closest('.attachment-upload');
+      if (!label) return;
+      const button = label.querySelector('span');
+      if (!button) return;
+      const fileName = input.files && input.files.length ? input.files[0].name : 'Upload';
+      button.textContent = fileName;
+    });
+  });
 
   const saveSheetButton = sectionBody.querySelector('[data-save-sheet]');
   if (saveSheetButton) {
