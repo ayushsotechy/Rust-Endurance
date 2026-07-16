@@ -11,20 +11,10 @@
     <div class="app-shell">
       <header class="topbar">
         <a class="brand" href="../../entry%20point/" aria-label="Back to Admin menu">
-          <svg class="brand-mark" viewBox="0 0 52 48" aria-hidden="true">
-            <path d="M25 1 48 17 36 25 13 9 25 1Z" />
-            <path d="M16 21 39 37 27 45 4 29 16 21Z" />
-          </svg>
-          <span>MARUTI SUZUKI</span>
+          <span class="brand-logo-slot" aria-label="Logo placeholder"></span>
         </a>
 
         <div class="account-area">
-          <div class="powered-by" aria-label="Powered by DE">
-            <span>Powered by</span>
-            <strong>DE</strong>
-            <span class="de-mark" aria-hidden="true">››</span>
-          </div>
-          <span class="divider" aria-hidden="true"></span>
           <div class="avatar" aria-hidden="true">SS</div>
           <button class="profile-button" id="profileButton" type="button" aria-expanded="false" aria-controls="profileMenu">
             <span class="profile-copy">
@@ -39,8 +29,14 @@
           <div class="profile-menu" id="profileMenu" role="menu" hidden>
             <div class="profile-menu__heading">
               <span class="mini-avatar">SS</span>
-              <span><strong>Maruti ABC</strong><small>Employee ID 124</small></span>
+              <span><strong>Maruti ABC</strong><small>Admin User</small></span>
             </div>
+            <dl class="profile-details">
+              <div><dt>Employee ID</dt><dd>124</dd></div>
+              <div><dt>Role</dt><dd>Administrator</dd></div>
+              <div><dt>Department</dt><dd>QA-ND</dd></div>
+              <div><dt>Access</dt><dd>Admin Portal</dd></div>
+            </dl>
             <button type="button" role="menuitem">View profile</button>
             <button type="button" role="menuitem" data-signout>Sign out</button>
           </div>

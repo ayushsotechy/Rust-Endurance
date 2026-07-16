@@ -37,6 +37,12 @@ function showToast(message) {
   toastTimer = setTimeout(() => toast.classList.remove('is-visible'), 2200);
 }
 
+function applyFilters() {
+  const model = document.querySelector('#modelFilter').value.trim().toLowerCase();
+  const chassis = document.querySelector('#chassisFilter').value.trim().toLowerCase();
+  renderRows(records.filter((record) => record.modelCode.toLowerCase().includes(model) && record.chassis.toLowerCase().includes(chassis)));
+}
+
 profileButton.addEventListener('click', (event) => {
   event.stopPropagation();
   const open = profileMenu.hidden;
@@ -52,9 +58,10 @@ document.querySelectorAll('[data-signout]').forEach((button) => {
 
 document.querySelector('#searchForm').addEventListener('submit', (event) => {
   event.preventDefault();
-  const model = document.querySelector('#modelFilter').value.trim().toLowerCase();
-  const chassis = document.querySelector('#chassisFilter').value.trim().toLowerCase();
-  renderRows(records.filter((record) => record.modelCode.toLowerCase().includes(model) && record.chassis.toLowerCase().includes(chassis)));
+  applyFilters();
+});
+document.querySelectorAll('#modelFilter, #chassisFilter').forEach((input) => {
+  input.addEventListener('input', applyFilters);
 });
 document.querySelector('#clearFilters').addEventListener('click', () => {
   document.querySelector('#searchForm').reset();

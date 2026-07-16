@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Rust Endurance admin checksheet approvals" />
+    <title>Rust Endurance | Checksheet Approvals</title>
+    <link rel="stylesheet" href="../model%20menu/styles.css" />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="topbar">
+        <a class="brand" href="../entry%20point/" aria-label="Back to Admin menu">
+          <span class="brand-logo-slot" aria-label="Logo placeholder"></span>
+        </a>
+        <div class="account-area">
+          <div class="avatar" aria-hidden="true">SS</div>
+          <button class="profile-button" id="profileButton" type="button" aria-expanded="false" aria-controls="profileMenu">
+            <span class="profile-copy"><strong>Maruti ABC</strong><span>124</span></span>
+            <span class="chevron" aria-hidden="true"><svg viewBox="0 0 20 20"><path d="m5.5 7.5 4.5 4.5 4.5-4.5"/></svg></span>
+          </button>
+          <div class="profile-menu" id="profileMenu" role="menu" hidden>
+            <div class="profile-menu__heading"><span class="mini-avatar">SS</span><span><strong>Maruti ABC</strong><small>Admin User</small></span></div>
+            <dl class="profile-details">
+              <div><dt>Employee ID</dt><dd>124</dd></div>
+              <div><dt>Role</dt><dd>Administrator</dd></div>
+              <div><dt>Department</dt><dd>QA-ND</dd></div>
+              <div><dt>Access</dt><dd>Admin Portal</dd></div>
+            </dl>
+            <button type="button" role="menuitem">View profile</button>
+            <button type="button" role="menuitem" data-signout>Sign out</button>
+          </div>
+        </div>
+      </header>
+
+      <main class="page-panel approval-panel">
+        <div class="page-heading">
+          <a class="back-link" href="../entry%20point/" aria-label="Back to Admin menu">←</a>
+          <div><span>MIC Submissions</span><h1>Checksheet Approvals</h1></div>
+        </div>
+
+        <section class="approval-summary" aria-label="Approval status summary">
+          <article><span id="pendingCount">0</span><p>Pending review</p></article>
+          <article><span id="approvedCount">0</span><p>Approved</p></article>
+          <article><span id="sentBackCount">0</span><p>Sent back</p></article>
+        </section>
+
+        <section class="approval-workspace">
+          <div class="submission-list" id="submissionList" aria-label="Incoming checksheets"></div>
+
+          <article class="review-panel" id="reviewPanel" aria-live="polite">
+            <div class="review-heading">
+              <div>
+                <span id="reviewStatus" class="status-pill">Pending</span>
+                <h2 id="reviewTitle">Select a checksheet</h2>
+                <p id="reviewMeta">Choose an MIC submission to review details.</p>
+              </div>
+            </div>
+
+            <dl class="review-details" id="reviewDetails"></dl>
+
+            <label class="feedback-field">
+              <span>Send back remarks</span>
+              <textarea id="reviewFeedback" rows="4" placeholder="Enter correction notes for MIC"></textarea>
+            </label>
+
+            <div class="review-actions">
+              <button class="primary-button approve-button" type="button" id="approveButton">Approve</button>
+              <button class="secondary-button sendback-button" type="button" id="sendBackButton">Send back</button>
+            </div>
+          </article>
+        </section>
+      </main>
+    </div>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    <script src="./app.js"></script>
+  </body>
+</html>
