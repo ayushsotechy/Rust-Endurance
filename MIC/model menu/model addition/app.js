@@ -173,7 +173,7 @@ const localDetailFields = [
   { type: 'dual-select', label: 'Trail:', name: 'trial', optionsA: ['T1', 'T2', 'P1'], optionsB: ['Phase 1', 'Phase 2', 'Phase 3'] },
   { type: 'select', label: 'Applicable checksheet', name: 'applicableChecksheet', options: ['Work Start up Inspection', '1st phase observation sheet', 'CRS check sheet'] },
   { type: 'input', label: 'Remarks', name: 'remarks' },
-  { type: 'select', label: 'Phases:', name: 'phase', options: ['Phase 1', 'Phase 2', 'Phase 3'] }
+  { type: 'select', label: 'Phases:', name: 'phase', options: phaseOptions }
 ];
 
 const sharedDetailFields = [
