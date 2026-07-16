@@ -247,6 +247,8 @@ button, a { -webkit-tap-highlight-color: transparent; }
 }
 .addition-form.layout-standard { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 .addition-form.layout-compact { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.addition-form.layout-meta { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.addition-form.layout-none { display: none; }
 
 .field {
   display: flex;
@@ -622,9 +624,98 @@ td {
   border-bottom: 1px solid rgba(255,255,255,.9);
   color: #2a3043;
   font-size: .82rem;
+  vertical-align: top;
 }
 tbody tr:last-child td { border-bottom: 0; }
 tbody tr:hover td { background: rgba(255,255,255,.45); }
+
+.group-label {
+  font-weight: 700;
+  vertical-align: middle;
+}
+
+.editable-table-cell {
+  padding: 6px 8px;
+  vertical-align: middle;
+}
+
+.table-input {
+  width: 100%;
+  min-width: 64px;
+  height: 34px;
+  padding: 0 9px;
+  border: 1px solid rgba(142, 162, 206, .45);
+  border-radius: 7px;
+  color: #2a3043;
+  background: rgba(255, 255, 255, .36);
+  outline: none;
+}
+
+.table-input:hover {
+  background: rgba(255, 255, 255, .56);
+}
+
+.table-input:focus {
+  border-color: #637bd0;
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(76, 104, 200, .13);
+}
+
+.multiline-cell {
+  white-space: pre-line;
+  line-height: 1.45;
+}
+
+.section-note {
+  margin: -4px 0 12px;
+  color: #11152b;
+  font-size: .9rem;
+  font-weight: 700;
+}
+
+.blank-detail-panel {
+  min-height: 108px;
+  border: 1px solid #dce3f0;
+  border-radius: 12px;
+  background: rgba(215, 229, 251, .45);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.7);
+}
+
+.section-actions {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  margin: 18px auto 0;
+}
+
+.action-button,
+.inline-button {
+  min-width: 96px;
+  min-height: 48px;
+  padding: 0 24px;
+  border-radius: 999px;
+  font-size: .86rem;
+  box-shadow: 0 8px 18px rgba(27, 32, 85, .17);
+}
+
+.inline-button {
+  margin: 0;
+}
+
+.action-button--save {
+  background: linear-gradient(145deg, #30409d, #0796a7);
+}
+
+.action-button--submit {
+  background: linear-gradient(145deg, #30349b, #11133e);
+}
+
+.primary-button {
+  border: 0;
+  color: #fff;
+  font-weight: 700;
+  cursor: pointer;
+}
 
 .radio-cell {
   display: inline-grid;
@@ -713,6 +804,13 @@ tbody tr:hover td { background: rgba(255,255,255,.45); }
   box-shadow: 0 8px 18px rgba(27, 32, 85, .17);
 }
 
+.section-actions .secondary-button {
+  min-width: 96px;
+  min-height: 48px;
+  padding: 0 24px;
+  margin: 0;
+}
+
 @media (max-height: 800px) and (min-width: 641px) {
   .page-panel {
     overflow-y: auto;
@@ -770,9 +868,8 @@ tbody tr:hover td { background: rgba(255,255,255,.45); }
   .powered-by, .divider { display: none; }
   .page-panel { height: calc(100vh - 62px); padding: 20px 18px; }
   .addition-form.layout-standard,
-  .addition-form.layout-compact { grid-template-columns: 1fr 1fr; }
-  .phase-sheet { grid-template-columns: 1fr; }
-  .phase-picker { grid-template-columns: repeat(7, minmax(68px, 1fr)); overflow-x: auto; }
+  .addition-form.layout-compact,
+  .addition-form.layout-meta { grid-template-columns: 1fr 1fr; }
   .field--wide,
   .trail-group { grid-column: 1 / -1; }
   .plan-button { grid-column: 1 / -1; }
@@ -797,7 +894,8 @@ tbody tr:hover td { background: rgba(255,255,255,.45); }
   .page-panel { min-height: calc(100vh - 58px); height: auto; padding: 18px 14px; border-radius: 0; overflow: visible; }
   .page-heading { margin-bottom: 14px; }
   .addition-form.layout-standard,
-  .addition-form.layout-compact {
+  .addition-form.layout-compact,
+  .addition-form.layout-meta {
     grid-template-columns: 1fr;
     gap: 14px;
   }
@@ -819,6 +917,10 @@ tbody tr:hover td { background: rgba(255,255,255,.45); }
   th { font-size: .76rem; padding: 12px; }
   td { font-size: .82rem; height: 48px; padding: 10px 12px; }
   .secondary-button { min-height: 42px; margin-top: 14px; }
+  .section-actions {
+    flex-wrap: wrap;
+    gap: 12px;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
