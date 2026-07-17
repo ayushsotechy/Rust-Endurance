@@ -57,11 +57,28 @@
 
         <div class="addition-layout">
           <aside class="step-rail" aria-label="Check sheet sections" id="sectionTabs">
-            <button class="step-item" type="button" data-section="common_form">Common Form</button>
-            <button class="step-item active" type="button" data-section="work_start_up_inspection">Work Start up Inspection</button>
-            <button class="step-item" type="button" data-section="first_phase_observation_sheet">1st phase observation sheet</button>
-            <button class="step-item" type="button" data-section="operation_durability_cycles">Operation Durability Cycles</button>
-            <button class="step-item" type="button" data-section="corrosion_coupon_measurement">Corrosion Coupon data measurement</button>
+            <button class="step-item active" type="button" data-section="common_form">
+              <span class="step-number">1</span>
+              <span>Common Form</span>
+            </button>
+            <div class="step-rail__label">Selected checksheets</div>
+            <button class="step-item flow-sheet-step" type="button" data-section="work_start_up_inspection" data-flow-sheet>
+              <span>Work Start up Inspection</span>
+              <small>Not selected</small>
+            </button>
+            <button class="step-item flow-sheet-step" type="button" data-section="first_phase_observation_sheet" data-flow-sheet>
+              <span>1st phase observation sheet</span>
+              <small>Not selected</small>
+            </button>
+            <button class="step-item flow-sheet-step" type="button" data-section="operation_durability_cycles" data-flow-sheet>
+              <span>Operation Durability Cycles</span>
+              <small>Not selected</small>
+            </button>
+            <button class="step-item flow-sheet-step" type="button" data-section="corrosion_coupon_measurement" data-flow-sheet>
+              <span>Corrosion Coupon data measurement</span>
+              <small>Not selected</small>
+            </button>
+            <div class="step-rail__label">Other checksheets</div>
             <button class="step-item" type="button" data-section="scribe_line_measurement">Scribe line measurement</button>
             <button class="step-item" type="button" data-section="crs_check_sheet">CRS check sheet</button>
             <button class="step-item" type="button" data-section="dismantling_inspection">Dismantling inspection sheet filled</button>

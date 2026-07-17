@@ -6,7 +6,7 @@ const sectionTitle = document.querySelector('#sectionTitle');
 const sectionBody = document.querySelector('#sectionBody');
 const commonDetailsSectionId = 'common_form';
 let toastTimer;
-let activeSectionId = 'work_start_up_inspection';
+let activeSectionId = commonDetailsSectionId;
 let activePhaseBySection = {
   [commonDetailsSectionId]: '0 Phase',
   work_start_up_inspection: '0 Phase',
@@ -18,7 +18,7 @@ let activePhaseBySection = {
   dismantling_inspection: '0 Phase',
   photo_annexure: '0 Phase'
 };
-const STORAGE_KEY = 'rustEnduranceMicModelAdditionState';
+const STORAGE_KEY = 'rustEnduranceMicModelAdditionStateV2';
 let persistedState = loadState();
 
 if (persistedState.activePhaseBySection) {
@@ -185,16 +185,15 @@ const localDetailFields = [
 ];
 
 const sharedDetailFields = [
-  { type: 'input', label: 'Model Code:', name: 'modelCode' },
-  { type: 'input', label: 'Chassis No', name: 'chassisNo' },
+  { type: 'input', label: 'Model Code:', name: 'modelCode', required: true },
+  { type: 'input', label: 'Chassis No', name: 'chassisNo', required: true },
   { type: 'input', label: 'Temp Symbol:', name: 'tempSymbol' },
-  { type: 'select', label: 'Location', name: 'location', options: ['Lab A', 'Lab B', 'Chamber 2'] },
+  { type: 'select', label: 'Location', name: 'location', options: ['Lab A', 'Lab B', 'Chamber 2'], required: true },
   { type: 'select', label: 'Test Type:', name: 'testTypePrimary', options: ['Cyclic corrosion', 'Salt spray', 'Humidity'] },
   { type: 'input', label: 'Test Type:', name: 'testTypeSecondary' },
-  { type: 'dual-select', label: 'Trail:', name: 'trial', optionsA: ['T1', 'T2', 'P1'], optionsB: ['Phase 1', 'Phase 2', 'Phase 3'] },
-  { type: 'select', label: 'Applicable checksheet', name: 'applicableChecksheet', options: [] },
+  { type: 'dual-select', label: 'Trial:', name: 'trial', optionsA: ['T1', 'T2', 'P1'], optionsB: ['Phase 1', 'Phase 2', 'Phase 3'] },
   { type: 'input', label: 'Remarks', name: 'remarks' },
-  { type: 'select', label: 'Phases:', name: 'phase', options: phaseOptions, phaseControlled: true }
+  { type: 'select', label: 'Phases:', name: 'phase', options: phaseOptions, phaseControlled: true, required: true }
 ];
 
 const sections = {
@@ -355,6 +354,21 @@ const sections = {
 };
 
 const phaseLinkedSectionIds = Object.keys(sections).filter((sectionId) => sectionId !== commonDetailsSectionId);
+const approvalFlowSectionIds = [
+  'work_start_up_inspection',
+  'first_phase_observation_sheet',
+  'operation_durability_cycles',
+  'corrosion_coupon_measurement'
+];
+const workflowDefaults = {
+  selectedChecksheets: [],
+  commonSaved: false,
+  status: 'draft'
+};
+let workflowState = {
+  ...workflowDefaults,
+  ...(persistedState.workflow || {})
+};
 
 const sharedPhase = activePhaseBySection[commonDetailsSectionId] || phaseOptions[0];
 activePhaseBySection[commonDetailsSectionId] = sharedPhase;
@@ -399,7 +413,8 @@ function saveState() {
   localStorage.setItem(STORAGE_KEY, JSON.stringify({
     activeSectionId,
     activePhaseBySection,
-    values: persistedState.values || {}
+    values: persistedState.values || {},
+    workflow: workflowState
   }));
 }
 
@@ -428,6 +443,7 @@ function controlKey(control, index) {
 function restoreControls() {
   sectionBody.querySelectorAll('input, select, textarea').forEach((control, index) => {
     if (control.matches('[data-phase-select]')) return;
+    if (control.matches('[data-checksheet-choice]')) return;
     if (control.type === 'file') return;
     const store = getValueStore(controlStoreKey(control));
     const key = controlKey(control, index);
@@ -445,6 +461,7 @@ function restoreControls() {
 function persistControls() {
   sectionBody.querySelectorAll('input, select, textarea').forEach((control, index) => {
     if (control.matches('[data-phase-select]')) return;
+    if (control.matches('[data-checksheet-choice]')) return;
     if (control.type === 'file') return;
     const store = getValueStore(controlStoreKey(control));
     const key = controlKey(control, index);
@@ -455,17 +472,21 @@ function persistControls() {
 
 function renderField(field) {
   const spanClass = field.span ? ` ${field.span}` : '';
+  const isWorkflowLocked = workflowState.status === 'pending' || workflowState.status === 'approved';
+  const required = field.required ? 'required' : '';
+  const disabled = isWorkflowLocked ? 'disabled' : '';
+  const labelText = `${field.label}${field.required ? '<b class="required-mark" aria-hidden="true">*</b>' : ''}`;
 
   if (field.type === 'dual-select') {
     return `
       <label class="field trail-group${spanClass}">
-        <span>${field.label}</span>
+        <span>${labelText}</span>
         <div class="dual-selects">
-          <select aria-label="${field.label} first select">
+          <select aria-label="${field.label} first select" ${disabled}>
             <option value=""></option>
             ${field.optionsA.map((option) => `<option>${option}</option>`).join('')}
           </select>
-          <select aria-label="${field.label} second select">
+          <select aria-label="${field.label} second select" ${disabled}>
             <option value=""></option>
             ${field.optionsB.map((option) => `<option>${option}</option>`).join('')}
           </select>
@@ -479,8 +500,8 @@ function renderField(field) {
     const isPhaseControlled = Boolean(field.phaseControlled);
     return `
       <label class="field select-field${spanClass}">
-        <span>${field.label}</span>
-        <select name="${field.name}" ${isPhaseControlled ? 'data-phase-select' : ''}>
+        <span>${labelText}</span>
+        <select name="${field.name}" ${isPhaseControlled ? 'data-phase-select' : ''} ${required} ${disabled}>
           <option value=""></option>
           ${field.options.map((option) => `<option ${isPhaseControlled && option === activePhase ? 'selected' : ''}>${option}</option>`).join('')}
         </select>
@@ -490,34 +511,184 @@ function renderField(field) {
 
   return `
     <label class="field${spanClass}">
-      <span>${field.label}</span>
-      <input type="text" name="${field.name}" placeholder="" />
+      <span>${labelText}</span>
+      <input type="text" name="${field.name}" placeholder="" ${required} ${disabled} />
     </label>
   `;
 }
 
 function getCommonFields() {
-  const applicableChecksheetOptions = Object.entries(sections)
-    .filter(([sectionId, config]) => !config.formOnly && sectionId !== commonDetailsSectionId)
-    .map(([, config]) => config.title);
+  return sharedDetailFields;
+}
 
-  return sharedDetailFields.map((field) => {
-    if (field.name === 'applicableChecksheet') {
-      return { ...field, options: applicableChecksheetOptions };
-    }
-    return field;
-  });
+function workflowStatusCopy() {
+  if (workflowState.status === 'approved') {
+    return {
+      label: 'Approved',
+      detail: 'Approved checksheets are available to the PIC for vehicle inspection.'
+    };
+  }
+  if (workflowState.status === 'changes_requested') {
+    return {
+      label: 'Changes requested',
+      detail: 'MIC needs to update the package and submit it again.'
+    };
+  }
+  if (workflowState.status === 'pending') {
+    return {
+      label: 'Pending admin approval',
+      detail: 'The admin can review the common details and selected checksheets.'
+    };
+  }
+  if (workflowState.commonSaved) {
+    return {
+      label: 'Checksheets in progress',
+      detail: 'Fill the selected checksheets, then submit the complete package.'
+    };
+  }
+  return {
+    label: 'MIC draft',
+    detail: 'Complete the vehicle and phase details, then select the applicable checksheets.'
+  };
+}
+
+function selectedFlowSheets() {
+  return approvalFlowSectionIds.filter((sectionId) => workflowState.selectedChecksheets.includes(sectionId));
+}
+
+function renderWorkflowTracker() {
+  const status = workflowStatusCopy();
+  const activeStep = workflowState.status === 'approved' ? 3 : workflowState.status === 'pending' ? 2 : 1;
+
+  return `
+    <section class="workflow-card" aria-label="Checksheet approval workflow">
+      <div class="workflow-card__copy">
+        <span class="eyebrow">Current status</span>
+        <strong>${status.label}</strong>
+        <p>${status.detail}</p>
+      </div>
+      <ol class="workflow-track">
+        ${[
+          ['MIC', 'Create'],
+          ['Admin', 'Approve'],
+          ['PIC', 'Check vehicle']
+        ].map(([role, action], index) => `
+          <li class="${index + 1 <= activeStep ? 'is-active' : ''}">
+            <span>${index + 1}</span>
+            <div><strong>${role}</strong><small>${action}</small></div>
+          </li>
+        `).join('')}
+      </ol>
+    </section>
+  `;
+}
+
+function renderChecksheetSelector() {
+  const isWorkflowLocked = workflowState.status === 'pending' || workflowState.status === 'approved';
+  return `
+    <fieldset class="checksheet-selector">
+      <legend>
+        <span class="eyebrow">Step 2</span>
+        Select applicable checksheets
+      </legend>
+      <p>Choose one or more sheets for this vehicle and phase. Only selected sheets will be sent to Admin.</p>
+      <div class="checksheet-options">
+        ${approvalFlowSectionIds.map((sectionId, index) => {
+          const checked = workflowState.selectedChecksheets.includes(sectionId);
+          return `
+            <label class="checksheet-option ${checked ? 'is-selected' : ''}">
+              <input type="checkbox" value="${sectionId}" data-checksheet-choice ${checked ? 'checked' : ''} ${isWorkflowLocked ? 'disabled' : ''} />
+              <span class="checksheet-option__mark" aria-hidden="true"></span>
+              <span class="checksheet-option__number">0${index + 1}</span>
+              <span class="checksheet-option__copy">
+                <strong>${sections[sectionId].title}</strong>
+                <small>${checked ? 'Included in approval package' : 'Select to include'}</small>
+              </span>
+            </label>
+          `;
+        }).join('')}
+      </div>
+    </fieldset>
+  `;
+}
+
+function renderApprovalReview() {
+  const selected = selectedFlowSheets();
+  const canSubmit = workflowState.commonSaved && selected.length > 0;
+  const isPending = workflowState.status === 'pending';
+  const isApproved = workflowState.status === 'approved';
+  const changesRequested = workflowState.status === 'changes_requested';
+
+  return `
+    <section class="approval-review ${!canSubmit ? 'is-muted' : ''}">
+      <div class="approval-review__heading">
+        <div>
+          <span class="eyebrow">Approval package</span>
+          <h3>${selected.length} checksheet${selected.length === 1 ? '' : 's'} selected</h3>
+        </div>
+        <span class="status-pill status-pill--${workflowState.status}">${workflowStatusCopy().label}</span>
+      </div>
+      <div class="approval-review__list">
+        ${selected.length
+          ? selected.map((sectionId) => `
+              <div>
+                <span class="review-check">✓</span>
+                <strong>${sections[sectionId].title}</strong>
+                <small>${activePhaseBySection[sectionId]}</small>
+              </div>
+            `).join('')
+          : '<p>Select checksheets above to build the approval package.</p>'}
+      </div>
+      ${isPending ? `
+        <div class="admin-decision">
+          <div>
+            <span class="eyebrow">Admin review preview</span>
+            <strong>Common details and selected sheets are ready for review</strong>
+          </div>
+          <button class="secondary-action" type="button" data-request-changes>Request changes</button>
+          <button class="primary-button" type="button" data-approve-package>Approve for PIC</button>
+        </div>
+      ` : ''}
+      ${isApproved ? `
+        <div class="pic-handoff">
+          <span class="pic-handoff__icon">PIC</span>
+          <div>
+            <span class="eyebrow">PIC handoff</span>
+            <strong>Vehicle checks are now available</strong>
+            <p>The PIC will see the same ${selected.length} approved checksheet${selected.length === 1 ? '' : 's'} for this vehicle and phase.</p>
+          </div>
+        </div>
+      ` : ''}
+      ${!isPending && !isApproved ? `
+        <div class="sheet-actions common-actions">
+          <button class="primary-button save-sheet" type="button" data-save-common>
+            ${workflowState.commonSaved ? 'Update common details' : 'Save & open selected sheets'}
+          </button>
+          <button class="primary-button submit-sheet" type="button" data-submit-approval ${canSubmit ? '' : 'disabled'}>
+            ${changesRequested ? 'Resubmit to Admin' : 'Submit to Admin'}
+          </button>
+        </div>
+      ` : ''}
+    </section>
+  `;
 }
 
 function renderCommonDetailsForm() {
   return `
-    <section class="sheet-detail common-form-sheet" aria-label="Common form">
-      <form class="addition-form layout-standard">
-        ${getCommonFields().map(renderField).join('')}
-      </form>
-      <div class="sheet-actions">
-        <button class="primary-button save-sheet" type="button" data-save-common>Save</button>
-      </div>
+    <section class="sheet-detail common-form-sheet" aria-label="MIC checksheet creation">
+      ${renderWorkflowTracker()}
+      <section class="common-details-card">
+        <div class="form-section-heading">
+          <span class="eyebrow">Step 1</span>
+          <h3>Vehicle & phase details</h3>
+          <p>These details will be shared across every selected checksheet.</p>
+        </div>
+        <form class="addition-form layout-standard">
+          ${getCommonFields().map(renderField).join('')}
+        </form>
+      </section>
+      ${renderChecksheetSelector()}
+      ${renderApprovalReview()}
     </section>
   `;
 }
@@ -559,11 +730,53 @@ function renderTableCell(cell) {
   return `<td>${cell ?? ''}</td>`;
 }
 
+function renderFlowSheetHeader(sectionId) {
+  if (!approvalFlowSectionIds.includes(sectionId)) return '';
+
+  const status = workflowState.status === 'approved'
+    ? 'Approved for PIC'
+    : workflowState.status === 'pending'
+      ? 'Awaiting Admin'
+      : 'MIC draft';
+
+  return `
+    <div class="flow-sheet-header">
+      <div>
+        <span class="eyebrow">Selected checksheet</span>
+        <strong>${sections[sectionId].title}</strong>
+      </div>
+      <div class="flow-sheet-header__meta">
+        <span>${activePhaseBySection[sectionId]}</span>
+        <span class="status-pill status-pill--${workflowState.status}">${status}</span>
+      </div>
+    </div>
+  `;
+}
+
+function renderSheetActions(sectionId, allowIndividualSubmit = true) {
+  if (approvalFlowSectionIds.includes(sectionId)) {
+    return `
+      <div class="sheet-actions">
+        <button class="primary-button save-sheet" type="button" data-save-sheet>Save checksheet</button>
+        <button class="secondary-action" type="button" data-review-package>Review approval package</button>
+      </div>
+    `;
+  }
+
+  return `
+    <div class="sheet-actions">
+      <button class="primary-button save-sheet" type="button" data-save-sheet>Save</button>
+      ${allowIndividualSubmit ? '<button class="primary-button submit-sheet" type="button" data-submit-sheet>Submit</button>' : ''}
+    </div>
+  `;
+}
+
 function renderPhaseObservationSheet(sectionId, config) {
   const activePhase = activePhaseBySection[sectionId] || phaseOptions[0];
 
   return `
     <section class="sheet-detail phase-observation-sheet" aria-label="${config.title} ${activePhase}">
+      ${renderFlowSheetHeader(sectionId)}
       <div class="table-frame phase-observation-frame">
         <table class="phase-observation-table">
           <thead>
@@ -603,10 +816,7 @@ function renderPhaseObservationSheet(sectionId, config) {
           </tbody>
         </table>
       </div>
-      <div class="sheet-actions">
-        <button class="primary-button save-sheet" type="button" data-save-sheet>Save</button>
-        <button class="primary-button submit-sheet" type="button" data-submit-sheet>Submit</button>
-      </div>
+      ${renderSheetActions(sectionId)}
     </section>
   `;
 }
@@ -771,11 +981,9 @@ function renderStandardPhaseSheet(sectionId, config) {
 
   return `
     <section class="sheet-detail" aria-label="${config.title} ${activePhase}">
+      ${renderFlowSheetHeader(sectionId)}
       ${renderTable(config.columns, config.rows)}
-      <div class="sheet-actions">
-        <button class="primary-button save-sheet" type="button" data-save-sheet>Save</button>
-        <button class="primary-button submit-sheet" type="button" data-submit-sheet>Submit</button>
-      </div>
+      ${renderSheetActions(sectionId)}
     </section>
   `;
 }
@@ -803,6 +1011,7 @@ function renderSection(sectionId) {
     button.classList.toggle('active', button.dataset.section === sectionId);
     button.setAttribute('aria-pressed', String(button.dataset.section === sectionId));
   });
+  updateSidebarState();
 
   const phaseSelect = sectionBody.querySelector('[data-phase-select]');
   if (phaseSelect) {
@@ -823,7 +1032,75 @@ function renderSection(sectionId) {
   if (saveCommonButton) {
     saveCommonButton.addEventListener('click', () => {
       persistControls();
-      showToast('Common form saved');
+      const missingField = [...sectionBody.querySelectorAll('.addition-form [required]')]
+        .find((field) => !String(field.value).trim());
+      if (missingField) {
+        missingField.classList.add('is-invalid');
+        missingField.focus();
+        showToast('Complete the required vehicle and phase details');
+        return;
+      }
+      const selected = selectedFlowSheets();
+      if (!selected.length) {
+        showToast('Select at least one checksheet');
+        return;
+      }
+      workflowState.commonSaved = true;
+      workflowState.status = 'draft';
+      saveState();
+      showToast('Common details saved. Selected checksheets are ready.');
+      renderSection(selected[0]);
+    });
+  }
+
+  sectionBody.querySelectorAll('[data-checksheet-choice]').forEach((choice) => {
+    choice.addEventListener('change', () => {
+      persistControls();
+      workflowState.selectedChecksheets = [...sectionBody.querySelectorAll('[data-checksheet-choice]:checked')]
+        .map((input) => input.value);
+      workflowState.commonSaved = false;
+      workflowState.status = 'draft';
+      saveState();
+      renderSection(commonDetailsSectionId);
+    });
+  });
+
+  const submitApprovalButton = sectionBody.querySelector('[data-submit-approval]');
+  if (submitApprovalButton) {
+    submitApprovalButton.addEventListener('click', () => {
+      persistControls();
+      workflowState.status = 'pending';
+      saveState();
+      showToast('Package sent to Admin for approval');
+      renderSection(commonDetailsSectionId);
+    });
+  }
+
+  const approvePackageButton = sectionBody.querySelector('[data-approve-package]');
+  if (approvePackageButton) {
+    approvePackageButton.addEventListener('click', () => {
+      workflowState.status = 'approved';
+      saveState();
+      showToast('Approved. Checksheets are now available to PIC.');
+      renderSection(commonDetailsSectionId);
+    });
+  }
+
+  const requestChangesButton = sectionBody.querySelector('[data-request-changes]');
+  if (requestChangesButton) {
+    requestChangesButton.addEventListener('click', () => {
+      workflowState.status = 'changes_requested';
+      saveState();
+      showToast('Admin requested changes from MIC');
+      renderSection(commonDetailsSectionId);
+    });
+  }
+
+  const reviewPackageButton = sectionBody.querySelector('[data-review-package]');
+  if (reviewPackageButton) {
+    reviewPackageButton.addEventListener('click', () => {
+      persistControls();
+      renderSection(commonDetailsSectionId);
     });
   }
 
@@ -873,6 +1150,29 @@ function renderSection(sectionId) {
   saveState();
 }
 
+function updateSidebarState() {
+  sectionTabs.querySelectorAll('[data-flow-sheet]').forEach((button) => {
+    const sectionId = button.dataset.section;
+    const isSelected = workflowState.selectedChecksheets.includes(sectionId);
+    const isAvailable = workflowState.commonSaved && isSelected;
+    const status = button.querySelector('small');
+    button.classList.toggle('is-selected', isSelected);
+    button.classList.toggle('is-locked', !isAvailable);
+    button.setAttribute('aria-disabled', String(!isAvailable));
+    if (status) {
+      status.textContent = isAvailable
+        ? workflowState.status === 'approved'
+          ? 'PIC ready'
+          : workflowState.status === 'pending'
+            ? 'Pending approval'
+            : 'MIC editing'
+        : isSelected
+          ? 'Save common form first'
+          : 'Not selected';
+    }
+  });
+}
+
 profileButton.addEventListener('click', (event) => {
   event.stopPropagation();
   const shouldOpen = profileMenu.hidden;
@@ -900,6 +1200,16 @@ document.querySelectorAll('[data-signout]').forEach((button) => {
 sectionTabs.addEventListener('click', (event) => {
   const button = event.target.closest('[data-section]');
   if (!button || button.dataset.section === activeSectionId) return;
+  if (button.matches('[data-flow-sheet]')) {
+    const isAvailable = workflowState.commonSaved
+      && workflowState.selectedChecksheets.includes(button.dataset.section);
+    if (!isAvailable) {
+      showToast(workflowState.selectedChecksheets.includes(button.dataset.section)
+        ? 'Save the common form to open this checksheet'
+        : 'Select this checksheet in the Common Form first');
+      return;
+    }
+  }
   persistControls();
   renderSection(button.dataset.section);
 });
