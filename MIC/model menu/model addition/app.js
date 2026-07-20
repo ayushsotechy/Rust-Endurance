@@ -153,6 +153,7 @@ const dismantlingRows = [
 const legacyRadioCell = () => ({ type: 'legacy-radio' });
 const emptyCell = () => ({ type: 'empty' });
 const inputCell = (value = '', label = 'Editable table cell') => ({ type: 'input', value, label });
+const uploadCell = (label = 'Photo upload') => ({ type: 'upload', label });
 const couponMeasurementLabels = [
   'initial check date',
   'initial weight',
@@ -341,10 +342,10 @@ const sections = {
     phaseSheet: 'standard',
     columns: ['Applicable', 'Photo Set', 'Description', 'Upload status'],
     rows: [
-      [{ type: 'radio' }, 'P-01', 'Front assembly', 'Uploaded'],
-      [{ type: 'radio' }, 'P-02', 'Side profile', 'Uploaded'],
-      [{ type: 'radio' }, 'P-03', 'Underbody', 'Pending'],
-      [{ type: 'radio' }, 'P-04', 'Close-up rust area', 'Pending']
+      [{ type: 'radio' }, 'P-01', 'Front assembly', uploadCell('P-01 front assembly photo upload')],
+      [{ type: 'radio' }, 'P-02', 'Side profile', uploadCell('P-02 side profile photo upload')],
+      [{ type: 'radio' }, 'P-03', 'Underbody', uploadCell('P-03 underbody photo upload')],
+      [{ type: 'radio' }, 'P-04', 'Close-up rust area', uploadCell('P-04 close-up rust area photo upload')]
     ]
   },
   [commonDetailsSectionId]: {
@@ -354,12 +355,7 @@ const sections = {
 };
 
 const phaseLinkedSectionIds = Object.keys(sections).filter((sectionId) => sectionId !== commonDetailsSectionId);
-const approvalFlowSectionIds = [
-  'work_start_up_inspection',
-  'first_phase_observation_sheet',
-  'operation_durability_cycles',
-  'corrosion_coupon_measurement'
-];
+const approvalFlowSectionIds = [...phaseLinkedSectionIds];
 const workflowDefaults = {
   selectedChecksheets: [],
   commonSaved: false,
@@ -720,6 +716,22 @@ function renderTableCell(cell) {
     return `<td class="editable-table-cell"><input class="table-input" type="text" value="${value}" aria-label="${label}" /></td>`;
   }
 
+  if (cell && cell.type === 'upload') {
+    const label = String(cell.label ?? 'Photo upload')
+      .replaceAll('&', '&amp;')
+      .replaceAll('"', '&quot;')
+      .replaceAll('<', '&lt;')
+      .replaceAll('>', '&gt;');
+    return `
+      <td>
+        <label class="attachment-upload" aria-label="${label}">
+          <input type="file" accept="image/*" data-attachment-input />
+          <span>Upload</span>
+        </label>
+      </td>
+    `;
+  }
+
   if (cell && typeof cell === 'object') {
     const rowSpan = cell.rowSpan ? ` rowspan="${cell.rowSpan}"` : '';
     const colSpan = cell.colSpan ? ` colspan="${cell.colSpan}"` : '';
@@ -873,6 +885,7 @@ function renderScribeMatrix(sectionId) {
       <div class="sheet-actions">
         <button class="primary-button save-sheet" type="button" data-save-sheet>Save</button>
         <button class="primary-button submit-sheet" type="button" data-submit-sheet>Submit</button>
+        <a class="secondary-button" href="../">Go Back</a>
       </div>
     </section>
   `;
@@ -922,6 +935,7 @@ function renderCrsSheet(sectionId) {
       <div class="sheet-actions">
         <button class="primary-button save-sheet" type="button" data-save-sheet>Save</button>
         <button class="primary-button submit-sheet" type="button" data-submit-sheet>Submit</button>
+        <a class="secondary-button" href="../">Go Back</a>
       </div>
     </section>
   `;
@@ -954,12 +968,14 @@ function renderDismantlingSheet(sectionId) {
                 <td>
                   <select aria-label="${activePhase} ${part} ${position} corrosion rating" disabled>
                     <option value=""></option>
-                    <option>0</option>
-                    <option>1</option>
-                    <option>2</option>
                     <option>3</option>
                     <option>4</option>
                     <option>5</option>
+                    <option>6</option>
+                    <option>7</option>
+                    <option>8</option>
+                    <option>9</option>
+                    <option>10</option>
                   </select>
                 </td>
                 <td><input type="text" aria-label="${activePhase} ${part} ${position} comment" disabled /></td>
@@ -971,6 +987,7 @@ function renderDismantlingSheet(sectionId) {
       <div class="sheet-actions">
         <button class="primary-button save-sheet" type="button" data-save-sheet>Save</button>
         <button class="primary-button submit-sheet" type="button" data-submit-sheet>Submit</button>
+        <a class="secondary-button" href="../">Go Back</a>
       </div>
     </section>
   `;
@@ -980,9 +997,9 @@ function renderStandardPhaseSheet(sectionId, config) {
   const activePhase = activePhaseBySection[sectionId] || phaseOptions[0];
 
   return `
-    <section class="sheet-detail" aria-label="${config.title} ${activePhase}">
+      <section class="sheet-detail" aria-label="${config.title} ${activePhase}">
       ${renderFlowSheetHeader(sectionId)}
-      ${renderTable(config.columns, config.rows)}
+        ${renderTable(config.columns, config.rows)}
       ${renderSheetActions(sectionId)}
     </section>
   `;

@@ -267,12 +267,12 @@ button, a { -webkit-tap-highlight-color: transparent; }
   display: flex;
   flex-direction: column;
   min-height: 0;
-  overflow: hidden;
+  overflow: visible;
 }
 
 #sectionBody {
   flex: 1;
-  min-height: 0;
+  min-height: auto;
   display: flex;
   flex-direction: column;
 }
@@ -789,9 +789,10 @@ button, a { -webkit-tap-highlight-color: transparent; }
 }
 
 .table-frame {
-  flex: 1;
-  min-height: 0;
-  overflow: auto;
+  flex: 0 0 auto;
+  min-height: auto;
+  overflow-x: auto;
+  overflow-y: visible;
   border: 1px solid #dce3f0;
   border-radius: 12px;
   background: #eef5ff;
@@ -807,7 +808,7 @@ button, a { -webkit-tap-highlight-color: transparent; }
 }
 
 .sheet-detail {
-  min-height: 0;
+  min-height: auto;
   display: flex;
   flex-direction: column;
   gap: 16px;
@@ -878,7 +879,7 @@ button, a { -webkit-tap-highlight-color: transparent; }
 }
 
 .phase-observation-frame {
-  max-height: min(58vh, 620px);
+  max-height: none;
 }
 
 .phase-observation-table {
@@ -959,28 +960,38 @@ button, a { -webkit-tap-highlight-color: transparent; }
 }
 
 .scribe-table {
-  min-width: 1180px;
+  width: 100%;
+  min-width: 0;
+  table-layout: fixed;
 }
 
 .scribe-table th:first-child,
 .scribe-table td:first-child {
-  width: 150px;
+  width: 86px;
   text-align: center;
 }
 
 .scribe-table th:nth-child(2),
 .scribe-table td:nth-child(2) {
-  width: 150px;
+  width: 86px;
 }
 
 .scribe-table td:nth-child(2) {
-  font-size: 1rem;
+  font-size: .86rem;
   color: #111827;
 }
 
+.scribe-table th {
+  padding: 8px 6px;
+  font-size: .68rem;
+  line-height: 1.2;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
 .scribe-table td {
-  min-width: 116px;
-  padding: 7px;
+  min-width: 0;
+  padding: 5px;
 }
 
 .sheet-actions {
@@ -1008,10 +1019,10 @@ button, a { -webkit-tap-highlight-color: transparent; }
 
 .scribe-table input {
   width: 100%;
-  height: 34px;
+  height: 30px;
   border: 1px solid #cad7ee;
-  border-radius: 7px;
-  padding: 0 8px;
+  border-radius: 6px;
+  padding: 0 6px;
   color: var(--ink);
   background: #fff;
   outline: none;
@@ -1023,7 +1034,7 @@ button, a { -webkit-tap-highlight-color: transparent; }
 }
 
 .crs-frame {
-  max-height: min(56vh, 560px);
+  max-height: none;
 }
 
 .crs-table {
@@ -1073,7 +1084,7 @@ button, a { -webkit-tap-highlight-color: transparent; }
 }
 
 .dismantling-frame {
-  max-height: min(56vh, 560px);
+  max-height: none;
 }
 
 .dismantling-table {
