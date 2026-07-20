@@ -500,7 +500,13 @@ function controlValueByNameOrLabel(nameOrLabel) {
   return control.value || '';
 }
 
+function inspectionPhaseFromCommonPhase(sectionId = 'crs_check_sheet') {
+  const phase = activePhaseBySection[sectionId] || phaseOptions[0];
+  return phase === '0.5 Phase' ? '1/2' : phase.replace(' Phase', '');
+}
+
 function buildCrsPayload() {
+  const selectedInspectionPhase = inspectionPhaseFromCommonPhase();
   const earthResistanceRanges = crsEarthResistanceDefaults.earthResistanceRanges.map((_, index) => ({
     from: controlValueByNameOrLabel(`earthResistanceBetween${index + 1}From`),
     to: controlValueByNameOrLabel(`earthResistanceBetween${index + 1}To`),
@@ -521,13 +527,14 @@ function buildCrsPayload() {
     filmThicknessBefore: controlValueByNameOrLabel('crs-filmThicknessBefore'),
     filmThicknessAfter: controlValueByNameOrLabel('crs-filmThicknessAfter'),
     remark: controlValueByNameOrLabel('crs-remark'),
+    selectedPhase: selectedInspectionPhase,
     inspectionRows: crsRows.map((row) => normalizeInspectionRow({
       ...row,
       filmThicknessBefore: controlValueByNameOrLabel(`${row.id} film thickness before`),
       filmThicknessAfter: controlValueByNameOrLabel(`${row.id} film thickness after`),
       inspectionValues: Object.fromEntries(crsInspectionPhases.map((phase) => [
         phase,
-        controlValueByNameOrLabel(`${row.id} phase ${phase}`)
+        phase === selectedInspectionPhase ? controlValueByNameOrLabel(`${row.id} phase ${phase}`) : row.inspectionValues[phase]
       ])),
       remark: controlValueByNameOrLabel(`${row.id} remark`)
     })),
@@ -968,33 +975,43 @@ function renderTable(columns, rows, legacyTable = false) {
 }
 
 function renderScribeMatrix(sectionId) {
-  const activePhase = activePhaseBySection[sectionId] || phaseOptions[0];
+  const scribePhaseGroups = [
+    phaseOptions.slice(0, 7),
+    phaseOptions.slice(7)
+  ];
 
   return `
-    <section class="sheet-detail scribe-sheet" aria-label="Scribe line measurement ${activePhase}">
-      <div class="table-frame scribe-frame applicable-table">
-        <table class="scribe-table">
-          <thead>
-            <tr>
-              <th>Applicable</th>
-              <th>Category</th>
-              ${bodyPanels.map((panel) => `<th>${panel}</th>`).join('')}
-            </tr>
-          </thead>
-          <tbody>
-            ${scribeDirections.map((direction, index) => `
-              <tr>
-                <td><label class="applicable-cell"><input type="checkbox" data-applicable-toggle /><span></span></label></td>
-                <td>${direction}</td>
-                ${bodyPanels.map((panel) => `
-                  <td>
-                    <input type="text" aria-label="${activePhase} ${direction} ${panel}" disabled />
-                  </td>
-                `).join('')}
-              </tr>
-            `).join('')}
-          </tbody>
-        </table>
+    <section class="sheet-detail scribe-sheet" aria-label="Scribe line measurement all phases">
+      <div class="scribe-phase-layout">
+        ${scribePhaseGroups.map((group) => `
+          <div class="scribe-block">
+            <h3>Scribe line measurmnet</h3>
+            <div class="table-frame scribe-frame applicable-table">
+            <table class="scribe-table">
+              <thead>
+                <tr>
+                  <th>Phase</th>
+                  <th>Direction</th>
+                  ${bodyPanels.map((panel) => `<th>${panel}</th>`).join('')}
+                </tr>
+              </thead>
+              <tbody>
+                ${group.map((phase) => scribeDirections.map((direction, directionIndex) => `
+                  <tr>
+                    ${directionIndex === 0 ? `<td class="scribe-phase-cell" rowspan="${scribeDirections.length}">${phase}</td>` : ''}
+                    <td>${direction}</td>
+                    ${bodyPanels.map((panel) => `
+                      <td>
+                        <input type="text" aria-label="${phase} ${direction} ${panel}" disabled />
+                      </td>
+                    `).join('')}
+                  </tr>
+                `).join('')).join('')}
+              </tbody>
+            </table>
+            </div>
+          </div>
+        `).join('')}
       </div>
       <div class="sheet-actions">
         <button class="primary-button save-sheet" type="button" data-save-sheet>Save</button>
@@ -1061,7 +1078,7 @@ function renderCrsEarthResistanceFields(isReadOnly = false) {
 
 function renderCrsSheet(sectionId) {
   const activePhase = activePhaseBySection[sectionId] || phaseOptions[0];
-  const isReadOnly = workflowState.status === 'pending' || workflowState.status === 'approved';
+  const isReadOnly = workflowState.status === 'pending';
   const renderedSections = new Set();
 
   return `
@@ -1110,12 +1127,12 @@ function renderCrsSheet(sectionId) {
                 <tr>
                   <td class="crs-sticky crs-sticky--applicable"><label class="applicable-cell"><input type="checkbox" aria-label="Apply ${escapeHtml(rowLabel)}" data-applicable-toggle ${isReadOnly ? 'disabled' : ''} /><span></span></label></td>
                   <td class="crs-section-cell crs-sticky crs-sticky--section">${escapeHtml(sectionLabel)}</td>
-                  <td class="crs-sticky crs-sticky--item">${escapeHtml(row.itemName)}</td>
-                  <td class="crs-sticky crs-sticky--sub-item crs-sub-item-cell">${escapeHtml(row.subItemName)}</td>
-                  <td class="crs-sticky crs-sticky--position crs-position-cell">${escapeHtml(row.position)}</td>
-                  <td class="crs-sticky crs-sticky--side crs-side-cell">${escapeHtml(row.side || '')}</td>
-                  <td class="crs-sticky crs-sticky--film-before crs-film-cell"><input class="crs-film-input" type="text" value="${escapeHtml(row.filmThicknessBefore)}" aria-label="${escapeHtml(`${row.id} film thickness before`)}" disabled /></td>
-                  <td class="crs-sticky crs-sticky--film-after crs-film-cell"><input class="crs-film-input" type="text" value="${escapeHtml(row.filmThicknessAfter)}" aria-label="${escapeHtml(`${row.id} film thickness after`)}" disabled /></td>
+                  <td class="crs-item-cell">${escapeHtml(row.itemName)}</td>
+                  <td class="crs-sub-item-cell">${escapeHtml(row.subItemName)}</td>
+                  <td class="crs-position-cell">${escapeHtml(row.position)}</td>
+                  <td class="crs-side-cell">${escapeHtml(row.side || '')}</td>
+                  <td class="crs-film-cell"><input class="crs-film-input" type="text" value="${escapeHtml(row.filmThicknessBefore)}" aria-label="${escapeHtml(`${row.id} film thickness before`)}" disabled /></td>
+                  <td class="crs-film-cell"><input class="crs-film-input" type="text" value="${escapeHtml(row.filmThicknessAfter)}" aria-label="${escapeHtml(`${row.id} film thickness after`)}" disabled /></td>
                   ${crsInspectionPhases.map((phase) => `
                     <td>
                       <input class="crs-phase-input" type="text" value="${escapeHtml(row.inspectionValues[phase])}" aria-label="${escapeHtml(`${row.id} phase ${phase}`)}" disabled />
@@ -1352,9 +1369,14 @@ function renderSection(sectionId) {
     const row = toggle.closest('tr');
     const updateRow = () => {
       const isReadOnlySheet = Boolean(row.closest('[data-sheet-readonly="true"]'));
+      const isApprovalLocked = workflowState.status === 'pending' || workflowState.status === 'approved';
+      const canPicFill = workflowState.status === 'approved' && toggle.checked;
+      const shouldShowOnlyApplicable = workflowState.status === 'pending' || workflowState.status === 'approved';
       row.classList.toggle('is-applicable', toggle.checked);
+      row.classList.toggle('is-hidden-by-applicability', shouldShowOnlyApplicable && !toggle.checked);
+      toggle.disabled = isApprovalLocked;
       row.querySelectorAll('input[type="text"], textarea, select').forEach((field) => {
-        field.disabled = isReadOnlySheet || !toggle.checked;
+        field.disabled = isReadOnlySheet ? true : !canPicFill;
       });
     };
     toggle.addEventListener('change', updateRow);
