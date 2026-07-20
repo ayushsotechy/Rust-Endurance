@@ -1037,26 +1037,218 @@ button, a { -webkit-tap-highlight-color: transparent; }
   max-height: none;
 }
 
-.crs-table {
-  min-width: 1120px;
+.crs-document-header {
+  padding: 16px 18px;
+  border: 1px solid #dce3f0;
+  border-radius: 12px;
+  background: rgba(255,255,255,.78);
 }
 
-.crs-table th:first-child,
-.crs-table td:first-child {
-  width: 118px;
+.crs-document-header h3 {
+  margin: 2px 0 0;
+  color: #121642;
+  font-size: 1.1rem;
+  line-height: 1.25;
+}
+
+.crs-meta-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(150px, 1fr));
+  gap: 12px;
+}
+
+.crs-meta-grid--shared {
+  grid-template-columns: repeat(5, minmax(140px, 1fr));
+}
+
+.crs-earth-panel {
+  padding: 16px 18px;
+  border: 1px solid #dce3f0;
+  border-radius: 12px;
+  display: grid;
+  gap: 14px;
+  background: rgba(255,255,255,.78);
+}
+
+.crs-earth-panel strong {
+  display: block;
+  color: #121642;
+}
+
+.crs-earth-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(160px, 1fr));
+  gap: 12px;
+}
+
+.crs-earth-ranges {
+  display: grid;
+  gap: 10px;
+}
+
+.crs-earth-range {
+  display: grid;
+  grid-template-columns: auto minmax(120px, 1fr) auto minmax(120px, 1fr) auto minmax(120px, 1fr);
+  gap: 8px;
+  align-items: center;
+  color: #3b4258;
+  font-size: .82rem;
+  font-weight: 700;
+}
+
+.crs-earth-range input {
+  width: 100%;
+  height: 34px;
+  border: 1px solid #cad7ee;
+  border-radius: 7px;
+  padding: 0 8px;
+  color: var(--ink);
+  background: #fff;
+  outline: none;
+}
+
+.crs-table {
+  min-width: 2320px;
+}
+
+.crs-table th,
+.crs-table td {
+  position: relative;
+}
+
+.crs-table th:first-child {
+  position: sticky;
+  left: 0;
+  z-index: 4;
+  width: 86px;
   text-align: center;
 }
 
-.crs-table th:nth-child(2),
-.crs-table td:nth-child(2) {
-  width: 190px;
-  font-weight: 800;
-  color: #27377c;
+.crs-table th:nth-child(2) {
+  position: sticky;
+  left: 86px;
+  z-index: 4;
+  width: 180px;
 }
 
-.crs-table th:nth-child(3),
-.crs-table td:nth-child(3) {
-  width: 260px;
+.crs-table th:nth-child(3) {
+  position: sticky;
+  left: 266px;
+  z-index: 4;
+  width: 210px;
+}
+
+.crs-table th:nth-child(4) {
+  position: sticky;
+  left: 476px;
+  z-index: 4;
+  width: 140px;
+}
+
+.crs-table th:nth-child(5) {
+  position: sticky;
+  left: 616px;
+  z-index: 4;
+  width: 130px;
+}
+
+.crs-table th:nth-child(6) {
+  position: sticky;
+  left: 746px;
+  z-index: 4;
+  width: 60px;
+  text-align: center;
+}
+
+.crs-table th:nth-child(7) {
+  position: sticky;
+  left: 806px;
+  z-index: 4;
+  width: 120px;
+}
+
+.crs-table th:nth-child(8) {
+  position: sticky;
+  left: 926px;
+  z-index: 4;
+  width: 120px;
+}
+
+.crs-sticky {
+  position: sticky;
+  z-index: 3;
+  background: #eef5ff;
+}
+
+.crs-sticky--applicable {
+  left: 0;
+  width: 86px;
+  text-align: center;
+}
+
+.crs-sticky--section {
+  left: 86px;
+  width: 180px;
+}
+
+.crs-sticky--item {
+  left: 266px;
+  width: 210px;
+}
+
+.crs-sticky--sub-item {
+  left: 476px;
+  width: 140px;
+}
+
+.crs-sticky--position {
+  left: 616px;
+  width: 130px;
+}
+
+.crs-sticky--side {
+  left: 746px;
+  width: 60px;
+  text-align: center;
+}
+
+.crs-sticky--film-before {
+  left: 806px;
+  width: 120px;
+}
+
+.crs-sticky--film-after {
+  left: 926px;
+  width: 120px;
+}
+
+.crs-section-cell {
+  font-weight: 800;
+  color: #27377c;
+  vertical-align: middle;
+}
+
+.crs-section-row td {
+  position: sticky;
+  left: 0;
+  z-index: 5;
+  padding: 10px 14px;
+  color: #fff;
+  background: linear-gradient(180deg, #283f91, #1d6ba9);
+  font-size: .78rem;
+  font-weight: 900;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+}
+
+.crs-sub-item-cell,
+.crs-position-cell {
+  overflow-wrap: anywhere;
+}
+
+.crs-table th:nth-last-child(1),
+.crs-table td:nth-last-child(1) {
+  width: 220px;
 }
 
 .crs-table input,
@@ -1069,6 +1261,24 @@ button, a { -webkit-tap-highlight-color: transparent; }
   color: var(--ink);
   background: #fff;
   outline: none;
+}
+
+.crs-table .crs-phase-input {
+  min-width: 56px;
+  padding: 0 6px;
+  text-align: center;
+}
+
+.crs-table .crs-remark-input {
+  min-width: 190px;
+}
+
+.crs-sheet[data-sheet-readonly="true"] input,
+.crs-sheet[data-sheet-readonly="true"] select {
+  border-color: transparent;
+  color: #252b3d;
+  background: transparent;
+  box-shadow: none;
 }
 
 .crs-table input:focus,

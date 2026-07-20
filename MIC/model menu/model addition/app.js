@@ -30,71 +30,126 @@ const phaseObservationRows = Array.from({ length: 13 }, (_, index) => `Phase ${i
 const phaseObservationCriteriaOptions = Array.from({ length: 8 }, (_, index) => String(index + 3));
 const bodyPanels = ['Hood', 'Front fender', 'Front door', 'Rear door', 'Quarter panel', 'Back door', 'Roof'];
 const scribeDirections = ['Left: V', 'Left: H', 'Right: V', 'Right: H'];
-const crsRows = [
-  ['Roof panel', 'Roof panel'],
-  ['Side body panel', 'Opening trim'],
-  ['Side body panel', 'Panel'],
-  ['Side body panel', 'Fuel lid hinge'],
-  ['Side body panel', 'Fuel lid mounting bolts'],
-  ['Side body panel', 'Fuel lid spring'],
-  ['Side body panel', 'Fuel filler neck'],
-  ['Side body panel', 'Fuel filler neck mounting bolts & nuts'],
-  ['Side body panel', 'Molding'],
-  ['Side body panel', 'Slide door guide rail'],
-  ['Side body panel', 'Matching portion with fuel lid box'],
-  ['Pillar panel', 'Pillar patching portion'],
-  ['Fender panel', 'Opening trim'],
-  ['Fender panel', 'Panel'],
-  ['Fender panel', 'Fender panel mounting bolts'],
-  ['Fender panel', 'Matching portion with inner panel'],
-  ['Front hood panel', 'Outer side'],
-  ['Front hood panel', 'Inner side'],
-  ['Front hood panel', 'Matching portion with inner panel'],
-  ['Front hood panel', 'Hinge mounting portion'],
-  ['Front hood panel', 'Hinge mounting bolts'],
-  ['Front hood panel', 'Lock'],
-  ['Front hood panel', 'Striker'],
-  ['Front hood panel', 'Lock & striker mounting bolts'],
-  ['Side sill panel', 'Side sill panel'],
-  ['Skirt panel', 'Front'],
-  ['Skirt panel', 'Rear'],
-  ['Skirt panel', 'Skirt panel mounting bolts'],
-  ['Door panel', 'Front door L'],
-  ['Door panel', 'Front door R'],
-  ['Door panel', 'Rear door L'],
-  ['Door panel', 'Rear door R'],
-  ['Door panel', 'Back door/Trunk'],
-  ['Matching with inner panel', 'Front door L'],
-  ['Matching with inner panel', 'Front door R'],
-  ['Matching with inner panel', 'Rear door L'],
-  ['Matching with inner panel', 'Rear door R'],
-  ['Matching with inner panel', 'Back door/Trunk'],
-  ['Door sash', 'Front door L'],
-  ['Door sash', 'Front door R'],
-  ['Door sash', 'Rear door L'],
-  ['Door sash', 'Rear door R'],
-  ['Door sash', 'Back door/Trunk'],
-  ['Matching with hinge', 'Front door L'],
-  ['Matching with hinge', 'Front door R'],
-  ['Matching with hinge', 'Rear door L'],
-  ['Matching with hinge', 'Rear door R'],
-  ['Matching with hinge', 'Back door/Trunk'],
-  ['Hinge arm mounting portion', 'Front door L'],
-  ['Hinge arm mounting portion', 'Front door R'],
-  ['Hinge arm mounting portion', 'Rear door L'],
-  ['Hinge arm mounting portion', 'Rear door R'],
-  ['Hinge arm mounting portion', 'Back door/Trunk'],
-  ['Hinge arm mounting bolts, pins', 'Front door L'],
-  ['Hinge arm mounting bolts, pins', 'Front door R'],
-  ['Hinge arm mounting bolts, pins', 'Rear door L'],
-  ['Hinge arm mounting bolts, pins', 'Rear door R'],
-  ['Hinge arm mounting bolts, pins', 'Back door/Trunk'],
-  ['Outside handle or button', 'Front door L'],
-  ['Outside handle or button', 'Front door R'],
-  ['Outside handle or button', 'Rear door L'],
-  ['Outside handle or button', 'Rear door R'],
-  ['Outside handle or button', 'Back door/Trunk']
+const crsInspectionPhases = ['0', '1/2', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12'];
+const crsDocumentTitle = 'SES T 6561 Corrosion resistance test, appearance and function inspection sheet';
+const crsDocumentFields = [
+  ['printDate', 'Print date'],
+  ['userId', 'User ID'],
+  ['sheetTitle', 'Sheet title'],
+  ['dateOfImplementation', 'Date of implementation'],
+  ['pageNumber', 'Page number'],
+  ['model', 'Model'],
+  ['prototypeStage', 'Prototype stage'],
+  ['temporarySymbol', 'Temporary symbol']
 ];
+const crsSharedInspectionFields = [
+  ['inspectionDay', 'Inspection day'],
+  ['inspectedBy', 'Inspected by'],
+  ['filmThicknessBefore', 'Film Thickness Before'],
+  ['filmThicknessAfter', 'Film Thickness After'],
+  ['remark', 'Remark']
+];
+const createEmptyInspectionValues = () => ({
+  "0": "",
+  "1/2": "",
+  "1": "",
+  "2": "",
+  "3": "",
+  "4": "",
+  "5": "",
+  "6": "",
+  "7": "",
+  "8": "",
+  "9": "",
+  "10": "",
+  "11": "",
+  "12": ""
+});
+const normalizeInspectionRow = (row = {}) => ({
+  id: row.id || "",
+  sectionNumber: row.sectionNumber || "",
+  sectionName: row.sectionName || "",
+  itemName: row.itemName || "",
+  subItemName: row.subItemName || "",
+  position: row.position || "",
+  side: row.side || "",
+  filmThicknessApplicable: row.filmThicknessApplicable ?? false,
+  filmThicknessBefore: row.filmThicknessBefore ?? "",
+  filmThicknessAfter: row.filmThicknessAfter ?? "",
+  inspectionValues: {
+    ...createEmptyInspectionValues(),
+    ...(row.inspectionValues || {})
+  },
+  remark: row.remark ?? ""
+});
+const crsRow = ({ id, sectionNumber = '', sectionName, itemName, subItemName = '', position = '', side = '', filmThicknessApplicable = false }) => normalizeInspectionRow({
+  id,
+  sectionNumber,
+  sectionName,
+  itemName,
+  subItemName,
+  position,
+  side,
+  filmThicknessApplicable,
+  inspectionValues: createEmptyInspectionValues(),
+  remark: ''
+});
+const crsRowsForItems = (sectionNumber, sectionName, items) => items.map(([id, itemName, extra = {}]) => crsRow({ id, sectionNumber, sectionName, itemName, ...extra }));
+const crsDoorPositions = [
+  { position: 'Front door', side: 'L' },
+  { position: 'Front door', side: 'R' },
+  { position: 'Rear door', side: 'L' },
+  { position: 'Rear door', side: 'R' },
+  { position: 'Back door/Trunk', side: '' }
+];
+const crsDoorRows = (items) => items.flatMap(([id, itemName]) => crsDoorPositions.map(({ position, side }) => crsRow({
+  id: `${id}${position.replace(/[^A-Za-z0-9]/g, '')}${side}`,
+  sectionNumber: '8',
+  sectionName: 'Door panel',
+  itemName,
+  position,
+  side
+})));
+const crsRows = [
+  crsRow({ id: 'roofPanel', sectionNumber: '1', sectionName: 'Roof panel', itemName: 'Roof panel' }),
+  ...crsRowsForItems('2', 'Side body panel', [['sideBodyPanelOpeningTrim', 'Opening trim'], ['sideBodyPanelPanel', 'Panel'], ['fuelLidHinge', 'Fuel lid hinge'], ['fuelLidMountingBolts', 'Fuel lid mounting bolts'], ['fuelLidSpring', 'Fuel lid spring'], ['fuelFillerNeck', 'Fuel filler neck'], ['fuelFillerNeckMountingBoltsAndNuts', 'Fuel filler neck mounting bolts & nuts'], ['molding', 'Molding'], ['sideDoorGuideRail', 'Side door guide rail'], ['matchingPortionWithFuelLidBox', 'Matching portion with fuel lid box']]),
+  ...crsRowsForItems('3', 'Pillar panel', [['pillarPanel', 'Pillar panel'], ['pillarPatchingPortion', 'Pillar patching portion']]),
+  ...crsRowsForItems('4', 'Fender panel', [['fenderPanelOpeningTrim', 'Opening trim'], ['fenderPanelPanel', 'Panel'], ['fenderPanelMountingBolts', 'Fender panel mounting bolts'], ['fenderMatchingPortionWithInnerPanel', 'Matching portion with inner panel']]),
+  ...crsRowsForItems('5', 'Front hood panel', [['frontHoodOuterSide', 'Outer side'], ['frontHoodInnerSide', 'Inner side'], ['frontHoodMatchingPortionWithInnerPanel', 'Matching portion with inner panel'], ['frontHoodHingeMountingPortion', 'Hinge mounting portion'], ['frontHoodHingeMountingBolts', 'Hinge mounting bolts'], ['frontHoodLock', 'Lock'], ['frontHoodStriker', 'Striker'], ['frontHoodLockAndStrikerMountingBolts', 'Lock & striker mounting bolts']]),
+  crsRow({ id: 'sideSillPanel', sectionNumber: '6', sectionName: 'Side sill panel', itemName: 'Side sill panel' }),
+  ...crsRowsForItems('7', 'Skirt panel', [['skirtPanelFront', 'Front'], ['skirtPanelRear', 'Rear'], ['skirtPanelMountingBolts', 'Skirt panel mounting bolts']]),
+  ...crsDoorRows([['doorPanel', 'Door panel'], ['doorMatchingWithInnerPanel', 'Matching with inner panel'], ['doorSash', 'Door sash'], ['doorMatchingWithHinge', 'Matching with hinge'], ['hingeArmMountingPortion', 'Hinge arm mounting portion'], ['hingeArmMountingBoltsAndPins', 'Hinge arm mounting bolts, pins'], ['outsideHandleOrButton', 'Outside handle or button'], ['doorLock', 'Door lock'], ['doorLockStriker', 'Door lock striker'], ['doorLockStrikerMountingBolts', 'Door lock striker mounting bolts']]),
+  crsRow({ id: 'cowlTopPanel', sectionNumber: '9', sectionName: 'Cowl top panel', itemName: 'Cowl top panel' }),
+  crsRow({ id: 'frontPanel', sectionNumber: '10', sectionName: 'Front panel', itemName: 'Front panel' }),
+  ...crsRowsForItems('11', 'Bumper', [['frontBumper', 'Bumper - Front', { position: 'Front' }], ['rearBumper', 'Bumper - Rear', { position: 'Rear' }], ['frontBumperMountingBolts', 'Mounting bolts - Front', { position: 'Front' }], ['rearBumperMountingBolts', 'Mounting bolts - Rear', { position: 'Rear' }]]),
+  ...crsRowsForItems('12', 'Rust in the cabin', [['seatRail', 'Seat rail'], ['seatRailMountingBolts', 'Seat rail mounting bolts'], ['recliningLeverAndPin', 'Reclining lever & pin'], ['sideBrakeLever', 'Side brake lever'], ['sideBrakeLeverMountingBolts', 'Side brake lever mounting bolts'], ['changeCoverTighteningBolts', 'Change cover tightening bolts'], ['changeShaft', 'Change shaft'], ['steeringShaft', 'Steering shaft'], ['floor', 'Floor']]),
+  ...crsRowsForItems('13', 'Wheel', [['frontWheelSteelOrAluminium', 'Front wheel - steel/aluminium', { position: 'Front' }], ['rearWheelSteelOrAluminium', 'Rear wheel - steel/aluminium', { position: 'Rear' }]]),
+  crsRow({ id: 'wheelNuts', sectionNumber: '14', sectionName: 'Wheel nuts', itemName: 'Wheel nuts' }),
+  crsRow({ id: 'lampMountingScrew', sectionNumber: '15', sectionName: 'Lamp etc. mounting screw', itemName: 'Lamp etc. mounting screw' }),
+  crsRow({ id: 'outsideMirror', sectionNumber: '16', sectionName: 'Outside mirror', itemName: 'Outside mirror' }),
+  crsRow({ id: 'frontWiper', sectionNumber: '17', sectionName: 'Front wiper', itemName: 'Front wiper' }),
+  crsRow({ id: 'rearWiper', sectionNumber: '18', sectionName: 'Rear wiper', itemName: 'Rear wiper' }),
+  crsRow({ id: 'headLampRimRetainer', sectionNumber: '19', sectionName: 'Head lamp rim (retainer)', itemName: 'Head lamp rim (retainer)' }),
+  crsRow({ id: 'frontBrake', sectionNumber: '20', sectionName: 'Front brake', itemName: 'Front brake' }),
+  crsRow({ id: 'rearBrake', sectionNumber: '21', sectionName: 'Rear brake', itemName: 'Rear brake' }),
+  ...crsRowsForItems('', 'Inside engine room', [['engineCylinder', 'Cylinder'], ['engineCylinderHead', 'Cylinder head'], ['engineHeadCover', 'Head cover'], ['engineOilPan', 'Oil pan'], ['engineAirCleaner', 'Air cleaner'], ['engineRadiator', 'Radiator'], ['engineThrottleBody', 'Throttle body'], ['engineSteelPipe', 'Steel pipe etc.'], ['engineWireHarnessCoupler', 'Wire harness coupler'], ['engineBattery', 'Battery'], ['engineClutchArm', 'Clutch arm'], ['engineClamp', 'Clamp etc.'], ['engineTighteningBoltsAndNuts', 'Tightening bolts & nuts']]),
+  ...crsRowsForItems('', 'Under floor', [['underFloorFuelTank', 'Fuel tank'], ['underFloorBody', 'Under floor'], ['mufflerAndExhaustPipe', 'Muffler, exhaust pipe'], ['chassisFrame', 'Chassis frame'], ['axle', 'Axle'], ['frontWheelHub', 'Front wheel hub'], ['leafSpring', 'Leaf spring'], ['absorberOrStrut', 'Absorber, strut'], ['coilSpring', 'Coil spring'], ['stabilizer', 'Stabilizer'], ['driveShaft', 'Drive shaft'], ['differentialCase', 'Differential case'], ['steeringAndLinkage', 'Steering, linkage'], ['fuelPipe', 'Fuel pipe'], ['brakePipe', 'Brake pipe'], ['knuckleArm', 'Knuckle arm'], ['propellerShaft', 'Propeller shaft'], ['underFloorWireHarnessCoupler', 'Wire harness coupler etc.'], ['compressor', 'Compressor'], ['alternator', 'Alternator'], ['starter', 'Starter']]),
+  ...crsRowsForItems('', 'Insulation / removal', [['tireWheelInsulationRemoval', 'Tire wheel insulation/removal'], ['softTopInsulationRemoval', 'Soft top insulation/removal']]),
+  ...crsRowsForItems('', 'Hybrid / electric vehicle', [['driveMotor', 'Drive motor'], ['generator', 'Generator'], ['driveBattery', 'Drive battery'], ['inverter', 'Inverter'], ['junctionBox', 'Junction box'], ['batteryCharger', 'Battery charger'], ['dcDcConverter', 'DC/DC converter'], ['controller', 'Controller'], ['highVoltageHarnessOrCoupler', 'High-voltage harness/coupler'], ['coolingFan', 'Cooling fan'], ['coolingWaterPump', 'Cooling water pump'], ['chargingLid', 'Charging lid'], ['quickChargerConnector', 'Quick charger connector'], ['normalChargerConnector', 'Normal charger connector']]),
+  crsRow({ id: 'systemWarningLampOnInspection', sectionName: 'System inspection', itemName: 'System warning lamp ON inspection' }),
+  crsRow({ id: 'highVoltageSystemInsulationResistance', sectionName: 'System inspection', itemName: 'Insulation resistance of high-voltage system', subItemName: 'Unit: MΩ' })
+];
+const crsEarthResistanceDefaults = {
+  earthResistanceMeasurement: "",
+  earthResistanceUnit: "mΩ",
+  earthResistanceStandardValue: "",
+  earthResistanceRanges: [
+    { from: "", to: "", value: "" },
+    { from: "", to: "", value: "" },
+    { from: "", to: "", value: "" },
+    { from: "", to: "", value: "" }
+  ]
+};
 const dismantlingRows = [
   ['Front hood', 'Front hood', ''],
   ['Door', 'Front', 'L'],
@@ -432,6 +487,62 @@ function getValueStore(key = stateKey()) {
   return persistedState.values[key];
 }
 
+function escapeSelector(value) {
+  if (window.CSS && typeof window.CSS.escape === 'function') return window.CSS.escape(value);
+  return String(value).replace(/["\\]/g, '\\$&');
+}
+
+function controlValueByNameOrLabel(nameOrLabel) {
+  const selectorValue = escapeSelector(nameOrLabel);
+  const control = sectionBody.querySelector(`[name="${selectorValue}"], [aria-label="${selectorValue}"]`);
+  if (!control) return '';
+  if (control.type === 'checkbox') return control.checked;
+  return control.value || '';
+}
+
+function buildCrsPayload() {
+  const earthResistanceRanges = crsEarthResistanceDefaults.earthResistanceRanges.map((_, index) => ({
+    from: controlValueByNameOrLabel(`earthResistanceBetween${index + 1}From`),
+    to: controlValueByNameOrLabel(`earthResistanceBetween${index + 1}To`),
+    value: controlValueByNameOrLabel(`earthResistanceBetween${index + 1}Value`)
+  }));
+
+  return {
+    printDate: controlValueByNameOrLabel('crs-printDate'),
+    userId: controlValueByNameOrLabel('crs-userId'),
+    sheetTitle: controlValueByNameOrLabel('crs-sheetTitle') || crsDocumentTitle,
+    pageNumber: controlValueByNameOrLabel('crs-pageNumber'),
+    dateOfImplementation: controlValueByNameOrLabel('crs-dateOfImplementation'),
+    model: controlValueByNameOrLabel('crs-model'),
+    prototypeStage: controlValueByNameOrLabel('crs-prototypeStage'),
+    temporarySymbol: controlValueByNameOrLabel('crs-temporarySymbol'),
+    inspectionDay: controlValueByNameOrLabel('crs-inspectionDay'),
+    inspectedBy: controlValueByNameOrLabel('crs-inspectedBy'),
+    filmThicknessBefore: controlValueByNameOrLabel('crs-filmThicknessBefore'),
+    filmThicknessAfter: controlValueByNameOrLabel('crs-filmThicknessAfter'),
+    remark: controlValueByNameOrLabel('crs-remark'),
+    inspectionRows: crsRows.map((row) => normalizeInspectionRow({
+      ...row,
+      filmThicknessBefore: controlValueByNameOrLabel(`${row.id} film thickness before`),
+      filmThicknessAfter: controlValueByNameOrLabel(`${row.id} film thickness after`),
+      inspectionValues: Object.fromEntries(crsInspectionPhases.map((phase) => [
+        phase,
+        controlValueByNameOrLabel(`${row.id} phase ${phase}`)
+      ])),
+      remark: controlValueByNameOrLabel(`${row.id} remark`)
+    })),
+    earthResistanceMeasurement: controlValueByNameOrLabel('earthResistanceMeasurement'),
+    earthResistanceUnit: controlValueByNameOrLabel('earthResistanceUnit') || crsEarthResistanceDefaults.earthResistanceUnit,
+    earthResistanceStandardValue: controlValueByNameOrLabel('earthResistanceStandardValue'),
+    earthResistanceRanges,
+    systemInspection: {
+      systemWarningLampOnInspection: controlValueByNameOrLabel('systemWarningLampOnInspection phase 0'),
+      highVoltageSystemInsulationResistance: controlValueByNameOrLabel('highVoltageSystemInsulationResistance phase 0'),
+      insulationResistanceUnit: 'MΩ'
+    }
+  };
+}
+
 function controlKey(control, index) {
   return control.name || control.getAttribute('aria-label') || `control-${index}`;
 }
@@ -463,6 +574,9 @@ function persistControls() {
     const key = controlKey(control, index);
     store[key] = control.type === 'checkbox' ? control.checked : control.value;
   });
+  if (activeSectionId === 'crs_check_sheet') {
+    getValueStore().crsPayload = buildCrsPayload();
+  }
   saveState();
 }
 
@@ -891,47 +1005,131 @@ function renderScribeMatrix(sectionId) {
   `;
 }
 
+function escapeHtml(value) {
+  return String(value ?? '')
+    .replaceAll('&', '&amp;')
+    .replaceAll('"', '&quot;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;');
+}
+
+function renderCrsMetaFields(fields, isReadOnly = false) {
+  return fields.map(([name, label]) => `
+    <label class="field">
+      <span>${label}</span>
+      <input type="text" name="crs-${name}" value="${name === 'sheetTitle' ? escapeHtml(crsDocumentTitle) : ''}" aria-label="CRS ${label}" ${isReadOnly ? 'disabled' : ''} />
+    </label>
+  `).join('');
+}
+
+function renderCrsEarthResistanceFields(isReadOnly = false) {
+  return `
+    <section class="crs-earth-panel" aria-label="Earth resistance measurement">
+      <div>
+        <span class="eyebrow">Earth resistance measurement</span>
+        <strong>Between measurement ranges</strong>
+      </div>
+      <div class="crs-earth-grid">
+        <label class="field">
+          <span>Measurement</span>
+          <input type="text" name="earthResistanceMeasurement" aria-label="Earth resistance measurement" ${isReadOnly ? 'disabled' : ''} />
+        </label>
+        <label class="field">
+          <span>Unit</span>
+          <input type="text" name="earthResistanceUnit" value="${escapeHtml(crsEarthResistanceDefaults.earthResistanceUnit)}" aria-label="Earth resistance unit" ${isReadOnly ? 'disabled' : ''} />
+        </label>
+        <label class="field">
+          <span>Standard value</span>
+          <input type="text" name="earthResistanceStandardValue" aria-label="Earth resistance standard value" ${isReadOnly ? 'disabled' : ''} />
+        </label>
+      </div>
+      <div class="crs-earth-ranges">
+        ${crsEarthResistanceDefaults.earthResistanceRanges.map((range, index) => `
+          <div class="crs-earth-range">
+            <span>Between</span>
+            <input type="text" name="earthResistanceBetween${index + 1}From" aria-label="Earth resistance between ${index + 1} from" ${isReadOnly ? 'disabled' : ''} />
+            <span>and</span>
+            <input type="text" name="earthResistanceBetween${index + 1}To" aria-label="Earth resistance between ${index + 1} to" ${isReadOnly ? 'disabled' : ''} />
+            <span>=</span>
+            <input type="text" name="earthResistanceBetween${index + 1}Value" aria-label="Earth resistance between ${index + 1} value" ${isReadOnly ? 'disabled' : ''} />
+          </div>
+        `).join('')}
+      </div>
+    </section>
+  `;
+}
+
 function renderCrsSheet(sectionId) {
   const activePhase = activePhaseBySection[sectionId] || phaseOptions[0];
+  const isReadOnly = workflowState.status === 'pending' || workflowState.status === 'approved';
+  const renderedSections = new Set();
 
   return `
-    <section class="sheet-detail crs-sheet" aria-label="CRS check sheet ${activePhase}">
+    <section class="sheet-detail crs-sheet" aria-label="CRS check sheet ${activePhase}" data-sheet-readonly="${isReadOnly}">
+      <input type="hidden" name="crs-title" value="${escapeHtml(crsDocumentTitle)}" />
+      <div class="crs-document-header">
+        <div>
+          <span class="eyebrow">CRS inspection</span>
+          <h3>${crsDocumentTitle}</h3>
+        </div>
+      </div>
+      <div class="crs-meta-grid">
+        ${renderCrsMetaFields(crsDocumentFields, isReadOnly)}
+      </div>
+      <div class="crs-meta-grid crs-meta-grid--shared">
+        ${renderCrsMetaFields(crsSharedInspectionFields, isReadOnly)}
+      </div>
       <div class="table-frame applicable-table crs-frame">
         <table class="crs-table">
           <thead>
             <tr>
               <th>Applicable</th>
-              <th>Inspection area</th>
-              <th>Inspection portion</th>
-              <th>Film t before (um)</th>
-              <th>Film t after (um)</th>
-              <th>Result</th>
+              <th>Section</th>
+              <th>Item</th>
+              <th>Sub item</th>
+              <th>Position</th>
+              <th>Side</th>
+              <th>Film Thickness Before</th>
+              <th>Film Thickness After</th>
+              ${crsInspectionPhases.map((phase) => `<th>${phase}</th>`).join('')}
               <th>Remark</th>
             </tr>
           </thead>
           <tbody>
-            ${crsRows.map(([area, portion]) => `
-              <tr>
-                <td><label class="applicable-cell"><input type="checkbox" data-applicable-toggle /><span></span></label></td>
-                <td>${area}</td>
-                <td>${portion}</td>
-                <td><input type="text" aria-label="${activePhase} ${area} ${portion} film before" disabled /></td>
-                <td><input type="text" aria-label="${activePhase} ${area} ${portion} film after" disabled /></td>
-                <td>
-                  <select aria-label="${activePhase} ${area} ${portion} result" disabled>
-                    <option value=""></option>
-                    <option>OK</option>
-                    <option>NG</option>
-                    <option>Observation</option>
-                  </select>
-                </td>
-                <td><input type="text" aria-label="${activePhase} ${area} ${portion} remark" disabled /></td>
-              </tr>
-            `).join('')}
+            ${crsRows.map((row) => {
+              const sectionLabel = [row.sectionNumber, row.sectionName].filter(Boolean).join('. ');
+              const shouldRenderSection = !renderedSections.has(sectionLabel);
+              renderedSections.add(sectionLabel);
+              const rowLabel = [row.sectionName, row.itemName, row.subItemName, row.position, row.side].filter(Boolean).join(' ');
+              return `
+                ${shouldRenderSection ? `
+                  <tr class="crs-section-row">
+                    <td colspan="${crsInspectionPhases.length + 9}">${escapeHtml(sectionLabel)}</td>
+                  </tr>
+                ` : ''}
+                <tr>
+                  <td class="crs-sticky crs-sticky--applicable"><label class="applicable-cell"><input type="checkbox" aria-label="Apply ${escapeHtml(rowLabel)}" data-applicable-toggle ${isReadOnly ? 'disabled' : ''} /><span></span></label></td>
+                  <td class="crs-section-cell crs-sticky crs-sticky--section">${escapeHtml(sectionLabel)}</td>
+                  <td class="crs-sticky crs-sticky--item">${escapeHtml(row.itemName)}</td>
+                  <td class="crs-sticky crs-sticky--sub-item crs-sub-item-cell">${escapeHtml(row.subItemName)}</td>
+                  <td class="crs-sticky crs-sticky--position crs-position-cell">${escapeHtml(row.position)}</td>
+                  <td class="crs-sticky crs-sticky--side crs-side-cell">${escapeHtml(row.side || '')}</td>
+                  <td class="crs-sticky crs-sticky--film-before crs-film-cell"><input class="crs-film-input" type="text" value="${escapeHtml(row.filmThicknessBefore)}" aria-label="${escapeHtml(`${row.id} film thickness before`)}" disabled /></td>
+                  <td class="crs-sticky crs-sticky--film-after crs-film-cell"><input class="crs-film-input" type="text" value="${escapeHtml(row.filmThicknessAfter)}" aria-label="${escapeHtml(`${row.id} film thickness after`)}" disabled /></td>
+                  ${crsInspectionPhases.map((phase) => `
+                    <td>
+                      <input class="crs-phase-input" type="text" value="${escapeHtml(row.inspectionValues[phase])}" aria-label="${escapeHtml(`${row.id} phase ${phase}`)}" disabled />
+                    </td>
+                  `).join('')}
+                  <td><input class="crs-remark-input" type="text" value="${escapeHtml(row.remark)}" aria-label="${escapeHtml(`${row.id} remark`)}" disabled /></td>
+                </tr>
+              `;
+            }).join('')}
           </tbody>
         </table>
       </div>
-      <p class="sheet-note">Including rust, water with rust at each hole edge and panel matching portion.</p>
+      ${renderCrsEarthResistanceFields(isReadOnly)}
+      <p class="sheet-note">Inspection of rust and water with rust must include each hole edge and panel matching portion.</p>
       <div class="sheet-actions">
         <button class="primary-button save-sheet" type="button" data-save-sheet>Save</button>
         <button class="primary-button submit-sheet" type="button" data-submit-sheet>Submit</button>
@@ -1153,9 +1351,10 @@ function renderSection(sectionId) {
   sectionBody.querySelectorAll('[data-applicable-toggle]').forEach((toggle) => {
     const row = toggle.closest('tr');
     const updateRow = () => {
+      const isReadOnlySheet = Boolean(row.closest('[data-sheet-readonly="true"]'));
       row.classList.toggle('is-applicable', toggle.checked);
       row.querySelectorAll('input[type="text"], textarea, select').forEach((field) => {
-        field.disabled = !toggle.checked;
+        field.disabled = isReadOnlySheet || !toggle.checked;
       });
     };
     toggle.addEventListener('change', updateRow);
