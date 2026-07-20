@@ -191,7 +191,7 @@ const dismantlingRows = [
 ];
 const legacyRadioCell = () => ({ type: 'legacy-radio' });
 const emptyCell = () => ({ type: 'empty' });
-const inputCell = (value = '', label = 'Editable table cell') => ({ type: 'input', value, label });
+const inputCell = (value = '', label = 'Editable table cell', inputType = 'text') => ({ type: 'input', value, label, inputType });
 const uploadCell = (label = 'Photo upload') => ({ type: 'upload', label });
 const couponMeasurementLabels = [
   'initial check date',
@@ -201,15 +201,27 @@ const couponMeasurementLabels = [
   'weight loss',
   'rust progress'
 ];
-const couponRow = (categoryCell, couponNo, runningDay = '', measurements = []) => [
-  legacyRadioCell(),
-  categoryCell,
-  inputCell(couponNo, `Coupon ${couponNo} number`),
-  inputCell(runningDay, `Coupon ${couponNo} running day`),
-  ...couponMeasurementLabels.map((label, index) => (
-    inputCell(measurements[index] ?? '', `Coupon ${couponNo} ${label}`)
-  ))
-];
+const ordinalDay = (day) => {
+  const remainder100 = day % 100;
+  if (remainder100 >= 11 && remainder100 <= 13) return `${day}th`;
+  if (day % 10 === 1) return `${day}st`;
+  if (day % 10 === 2) return `${day}nd`;
+  if (day % 10 === 3) return `${day}rd`;
+  return `${day}th`;
+};
+const couponRow = (categoryCell, couponNo, runningDay, group) => {
+  const row = [
+    legacyRadioCell(),
+    categoryCell,
+    inputCell(couponNo, `Coupon ${couponNo} number`),
+    inputCell(runningDay, `Coupon ${couponNo} running day`),
+    ...couponMeasurementLabels.map((label) => (
+      inputCell('', `Coupon ${couponNo} ${label}`, label.includes('date') ? 'date' : 'text')
+    ))
+  ];
+  row.className = `coupon-${group}`;
+  return row;
+};
 
 const localDetailFields = [
   { type: 'input', label: 'Model Code:', name: 'modelCode' },
@@ -346,22 +358,22 @@ const sections = {
     legacyTable: true,
     columns: ['Applicable', 'Category', 'Coupon no.', 'Running Day', 'Initial check date', 'Initial weight', 'Final Check Date', 'Final Weight', 'Weight Loss', 'Rust Progress (µm)'],
     rows: [
-      couponRow({ text: 'Underbody', rowSpan: 10, className: 'group-label' }, '1', '5th'),
-      couponRow(emptyCell(), '2', '6th'),
-      couponRow(emptyCell(), '3', '7th'),
-      couponRow(emptyCell(), '4', '8th'),
-      couponRow(emptyCell(), '5', '9th'),
-      couponRow(emptyCell(), '6', '10th'),
-      couponRow(emptyCell(), '7', '11th'),
-      couponRow(emptyCell(), '8', '12th'),
-      couponRow(emptyCell(), '9', '13th', ['14.01.2025', 'o', 'o', 'o', 'o', 'o']),
-      couponRow(emptyCell(), '10', '14th', ['14.01.2025', 'o', 'o', 'o', 'o', 'o']),
-      couponRow({ text: 'Exterior', rowSpan: 4, className: 'group-label' }, '21'),
-      couponRow(emptyCell(), '22'),
-      couponRow(emptyCell(), '23'),
-      couponRow(emptyCell(), '24'),
-      couponRow({ text: 'Under hood', rowSpan: 2, className: 'group-label' }, '11'),
-      couponRow(emptyCell(), '12')
+      couponRow({ text: 'Underbody', rowSpan: 10, className: 'group-label group-label--underbody' }, '1', ordinalDay(5), 'underbody'),
+      couponRow(emptyCell(), '2', ordinalDay(6), 'underbody'),
+      couponRow(emptyCell(), '3', ordinalDay(7), 'underbody'),
+      couponRow(emptyCell(), '4', ordinalDay(8), 'underbody'),
+      couponRow(emptyCell(), '5', ordinalDay(9), 'underbody'),
+      couponRow(emptyCell(), '6', ordinalDay(10), 'underbody'),
+      couponRow(emptyCell(), '7', ordinalDay(11), 'underbody'),
+      couponRow(emptyCell(), '8', ordinalDay(12), 'underbody'),
+      couponRow(emptyCell(), '9', ordinalDay(13), 'underbody'),
+      couponRow(emptyCell(), '10', ordinalDay(14), 'underbody'),
+      couponRow({ text: 'Exterior', rowSpan: 4, className: 'group-label group-label--exterior' }, '11', ordinalDay(15), 'exterior'),
+      couponRow(emptyCell(), '12', ordinalDay(16), 'exterior'),
+      couponRow(emptyCell(), '13', ordinalDay(17), 'exterior'),
+      couponRow(emptyCell(), '14', ordinalDay(18), 'exterior'),
+      couponRow({ text: 'Under hood', rowSpan: 2, className: 'group-label group-label--underhood' }, '15', ordinalDay(19), 'underhood'),
+      couponRow(emptyCell(), '16', ordinalDay(20), 'underhood')
     ]
   },
   scribe_line_measurement: {
@@ -875,7 +887,8 @@ function renderTableCell(cell) {
       .replaceAll('"', '&quot;')
       .replaceAll('<', '&lt;')
       .replaceAll('>', '&gt;');
-    return `<td class="editable-table-cell"><input class="table-input" type="text" value="${value}" aria-label="${label}" /></td>`;
+    const inputType = cell.inputType === 'date' ? 'date' : 'text';
+    return `<td class="editable-table-cell"><input class="table-input" type="${inputType}" value="${value}" aria-label="${label}" /></td>`;
   }
 
   if (cell && cell.type === 'upload') {
@@ -1005,7 +1018,7 @@ function renderTable(columns, rows, legacyTable = false) {
         </thead>
         <tbody>
           ${rows.map((row) => `
-            <tr>
+            <tr${row.className ? ` class="${row.className}"` : ''}>
               ${row.map(renderTableCell).join('')}
             </tr>
           `).join('')}
