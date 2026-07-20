@@ -19,6 +19,7 @@ let activePhaseBySection = {
   photo_annexure: '0 Phase'
 };
 const STORAGE_KEY = 'rustEnduranceMicModelAdditionStateV2';
+const MODEL_RECORDS_KEY = 'rustEnduranceMicModelRecords';
 let persistedState = loadState();
 
 if (persistedState.activePhaseBySection) {
@@ -32,23 +33,6 @@ const bodyPanels = ['Hood', 'Front fender', 'Front door', 'Rear door', 'Quarter 
 const scribeDirections = ['Left: V', 'Left: H', 'Right: V', 'Right: H'];
 const crsInspectionPhases = ['0', '1/2', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12'];
 const crsDocumentTitle = 'SES T 6561 Corrosion resistance test, appearance and function inspection sheet';
-const crsDocumentFields = [
-  ['printDate', 'Print date'],
-  ['userId', 'User ID'],
-  ['sheetTitle', 'Sheet title'],
-  ['dateOfImplementation', 'Date of implementation'],
-  ['pageNumber', 'Page number'],
-  ['model', 'Model'],
-  ['prototypeStage', 'Prototype stage'],
-  ['temporarySymbol', 'Temporary symbol']
-];
-const crsSharedInspectionFields = [
-  ['inspectionDay', 'Inspection day'],
-  ['inspectedBy', 'Inspected by'],
-  ['filmThicknessBefore', 'Film Thickness Before'],
-  ['filmThicknessAfter', 'Film Thickness After'],
-  ['remark', 'Remark']
-];
 const createEmptyInspectionValues = () => ({
   "0": "",
   "1/2": "",
@@ -467,6 +451,63 @@ function saveState() {
     values: persistedState.values || {},
     workflow: workflowState
   }));
+}
+
+function syncApprovalPackageToModelRecords() {
+  const selectedChecksheets = selectedFlowSheets();
+  const commonDetails = persistedState.values?.[`${commonDetailsSectionId}::details`] || {};
+  let records = [];
+
+  try {
+    const storedRecords = JSON.parse(localStorage.getItem(MODEL_RECORDS_KEY));
+    if (Array.isArray(storedRecords)) records = storedRecords;
+  } catch {
+    // A fresh record list is created when stored model data is unreadable.
+  }
+
+  const existingId = workflowState.modelRecordId;
+  const existingIndex = existingId == null
+    ? -1
+    : records.findIndex((record) => String(record.id) === String(existingId));
+  const existingRecord = existingIndex >= 0 ? records[existingIndex] : {};
+  const recordId = existingRecord.id || existingId || `mic-${Date.now()}`;
+  const trial = commonDetails['Trail: first select'] || existingRecord.trial || '';
+  const phase = activePhaseBySection[commonDetailsSectionId] || existingRecord.phase || '0 Phase';
+  const testType = commonDetails.testTypeSecondary
+    || commonDetails.testTypePrimary
+    || existingRecord.testType
+    || '';
+
+  const packageRecord = {
+    ...existingRecord,
+    id: recordId,
+    modelCode: commonDetails.modelCode || existingRecord.modelCode || '',
+    chassis: commonDetails.chassisNo || existingRecord.chassis || '',
+    temp: commonDetails.tempSymbol || existingRecord.temp || '',
+    location: commonDetails.location || existingRecord.location || '',
+    testType,
+    trial,
+    phase,
+    remarks: commonDetails.remarks || existingRecord.remarks || '',
+    source: 'MIC',
+    status: 'Pending',
+    raisedAt: existingRecord.raisedAt || new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+    savedChecksheets: [...selectedChecksheets],
+    checksheets: selectedChecksheets.map((sectionId) => sections[sectionId].title),
+    sheetApprovals: Object.fromEntries(selectedChecksheets.map((sectionId) => [sectionId, 'Pending'])),
+    approvedChecksheets: [],
+    formState: {
+      activePhaseBySection: { ...activePhaseBySection },
+      values: persistedState.values || {}
+    }
+  };
+
+  if (existingIndex >= 0) records[existingIndex] = packageRecord;
+  else records.push(packageRecord);
+
+  workflowState.modelRecordId = recordId;
+  localStorage.setItem(MODEL_RECORDS_KEY, JSON.stringify(records));
 }
 
 function stateKey(sectionId = activeSectionId) {
@@ -982,6 +1023,7 @@ function renderScribeMatrix(sectionId) {
 
   return `
     <section class="sheet-detail scribe-sheet" aria-label="Scribe line measurement all phases">
+      ${renderFlowSheetHeader(sectionId)}
       <div class="scribe-phase-layout">
         ${scribePhaseGroups.map((group) => `
           <div class="scribe-block">
@@ -1013,11 +1055,7 @@ function renderScribeMatrix(sectionId) {
           </div>
         `).join('')}
       </div>
-      <div class="sheet-actions">
-        <button class="primary-button save-sheet" type="button" data-save-sheet>Save</button>
-        <button class="primary-button submit-sheet" type="button" data-submit-sheet>Submit</button>
-        <a class="secondary-button" href="../">Go Back</a>
-      </div>
+      ${renderSheetActions(sectionId)}
     </section>
   `;
 }
@@ -1028,15 +1066,6 @@ function escapeHtml(value) {
     .replaceAll('"', '&quot;')
     .replaceAll('<', '&lt;')
     .replaceAll('>', '&gt;');
-}
-
-function renderCrsMetaFields(fields, isReadOnly = false) {
-  return fields.map(([name, label]) => `
-    <label class="field">
-      <span>${label}</span>
-      <input type="text" name="crs-${name}" value="${name === 'sheetTitle' ? escapeHtml(crsDocumentTitle) : ''}" aria-label="CRS ${label}" ${isReadOnly ? 'disabled' : ''} />
-    </label>
-  `).join('');
 }
 
 function renderCrsEarthResistanceFields(isReadOnly = false) {
@@ -1079,10 +1108,21 @@ function renderCrsEarthResistanceFields(isReadOnly = false) {
 function renderCrsSheet(sectionId) {
   const activePhase = activePhaseBySection[sectionId] || phaseOptions[0];
   const isReadOnly = workflowState.status === 'pending';
-  const renderedSections = new Set();
+  const groupedRows = [];
+
+  crsRows.forEach((row) => {
+    const sectionLabel = [row.sectionNumber, row.sectionName].filter(Boolean).join('. ');
+    const currentGroup = groupedRows.at(-1);
+    if (!currentGroup || currentGroup.label !== sectionLabel) {
+      groupedRows.push({ label: sectionLabel, rows: [row] });
+    } else {
+      currentGroup.rows.push(row);
+    }
+  });
 
   return `
     <section class="sheet-detail crs-sheet" aria-label="CRS check sheet ${activePhase}" data-sheet-readonly="${isReadOnly}">
+      ${renderFlowSheetHeader(sectionId)}
       <input type="hidden" name="crs-title" value="${escapeHtml(crsDocumentTitle)}" />
       <div class="crs-document-header">
         <div>
@@ -1090,68 +1130,62 @@ function renderCrsSheet(sectionId) {
           <h3>${crsDocumentTitle}</h3>
         </div>
       </div>
-      <div class="crs-meta-grid">
-        ${renderCrsMetaFields(crsDocumentFields, isReadOnly)}
-      </div>
-      <div class="crs-meta-grid crs-meta-grid--shared">
-        ${renderCrsMetaFields(crsSharedInspectionFields, isReadOnly)}
-      </div>
-      <div class="table-frame applicable-table crs-frame">
-        <table class="crs-table">
-          <thead>
-            <tr>
-              <th>Applicable</th>
-              <th>Section</th>
-              <th>Item</th>
-              <th>Sub item</th>
-              <th>Position</th>
-              <th>Side</th>
-              <th>Film Thickness Before</th>
-              <th>Film Thickness After</th>
-              ${crsInspectionPhases.map((phase) => `<th>${phase}</th>`).join('')}
-              <th>Remark</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${crsRows.map((row) => {
-              const sectionLabel = [row.sectionNumber, row.sectionName].filter(Boolean).join('. ');
-              const shouldRenderSection = !renderedSections.has(sectionLabel);
-              renderedSections.add(sectionLabel);
-              const rowLabel = [row.sectionName, row.itemName, row.subItemName, row.position, row.side].filter(Boolean).join(' ');
-              return `
-                ${shouldRenderSection ? `
-                  <tr class="crs-section-row">
-                    <td colspan="${crsInspectionPhases.length + 9}">${escapeHtml(sectionLabel)}</td>
+      <div class="crs-accordion-list" aria-label="CRS inspection sections">
+        ${groupedRows.map((group, groupIndex) => `
+          <details class="crs-section-accordion" data-crs-section>
+            <summary>
+              <span class="crs-section-number">${String(groupIndex + 1).padStart(2, '0')}</span>
+              <strong>${escapeHtml(group.label || 'General inspection')}</strong>
+              <small>${group.rows.length} item${group.rows.length === 1 ? '' : 's'}</small>
+              <span class="crs-section-chevron" aria-hidden="true">⌄</span>
+            </summary>
+            <div class="table-frame applicable-table crs-frame">
+              <table class="crs-table">
+                <thead>
+                  <tr>
+                    <th>Applicable</th>
+                    <th>Section</th>
+                    <th>Item</th>
+                    <th>Sub item</th>
+                    <th>Position</th>
+                    <th>Side</th>
+                    <th>Film Thickness Before</th>
+                    <th>Film Thickness After</th>
+                    ${crsInspectionPhases.map((phase) => `<th>${phase}</th>`).join('')}
+                    <th>Remark</th>
                   </tr>
-                ` : ''}
-                <tr>
-                  <td class="crs-sticky crs-sticky--applicable"><label class="applicable-cell"><input type="checkbox" aria-label="Apply ${escapeHtml(rowLabel)}" data-applicable-toggle ${isReadOnly ? 'disabled' : ''} /><span></span></label></td>
-                  <td class="crs-section-cell crs-sticky crs-sticky--section">${escapeHtml(sectionLabel)}</td>
-                  <td class="crs-item-cell">${escapeHtml(row.itemName)}</td>
-                  <td class="crs-sub-item-cell">${escapeHtml(row.subItemName)}</td>
-                  <td class="crs-position-cell">${escapeHtml(row.position)}</td>
-                  <td class="crs-side-cell">${escapeHtml(row.side || '')}</td>
-                  <td class="crs-film-cell"><input class="crs-film-input" type="text" value="${escapeHtml(row.filmThicknessBefore)}" aria-label="${escapeHtml(`${row.id} film thickness before`)}" disabled /></td>
-                  <td class="crs-film-cell"><input class="crs-film-input" type="text" value="${escapeHtml(row.filmThicknessAfter)}" aria-label="${escapeHtml(`${row.id} film thickness after`)}" disabled /></td>
-                  ${crsInspectionPhases.map((phase) => `
-                    <td>
-                      <input class="crs-phase-input" type="text" value="${escapeHtml(row.inspectionValues[phase])}" aria-label="${escapeHtml(`${row.id} phase ${phase}`)}" disabled />
-                    </td>
-                  `).join('')}
-                  <td><input class="crs-remark-input" type="text" value="${escapeHtml(row.remark)}" aria-label="${escapeHtml(`${row.id} remark`)}" disabled /></td>
-                </tr>
-              `;
-            }).join('')}
-          </tbody>
-        </table>
+                </thead>
+                <tbody>
+                  ${group.rows.map((row) => {
+                    const rowLabel = [row.sectionName, row.itemName, row.subItemName, row.position, row.side].filter(Boolean).join(' ');
+                    return `
+                      <tr>
+                        <td class="crs-sticky crs-sticky--applicable"><label class="applicable-cell"><input type="checkbox" aria-label="Apply ${escapeHtml(rowLabel)}" data-applicable-toggle ${isReadOnly ? 'disabled' : ''} /><span></span></label></td>
+                        <td class="crs-section-cell crs-sticky crs-sticky--section">${escapeHtml(group.label)}</td>
+                        <td class="crs-item-cell">${escapeHtml(row.itemName)}</td>
+                        <td class="crs-sub-item-cell">${escapeHtml(row.subItemName)}</td>
+                        <td class="crs-position-cell">${escapeHtml(row.position)}</td>
+                        <td class="crs-side-cell">${escapeHtml(row.side || '')}</td>
+                        <td class="crs-film-cell"><input class="crs-film-input" type="text" value="${escapeHtml(row.filmThicknessBefore)}" aria-label="${escapeHtml(`${row.id} film thickness before`)}" disabled /></td>
+                        <td class="crs-film-cell"><input class="crs-film-input" type="text" value="${escapeHtml(row.filmThicknessAfter)}" aria-label="${escapeHtml(`${row.id} film thickness after`)}" disabled /></td>
+                        ${crsInspectionPhases.map((phase) => `
+                          <td>
+                            <input class="crs-phase-input" type="text" value="${escapeHtml(row.inspectionValues[phase])}" aria-label="${escapeHtml(`${row.id} phase ${phase}`)}" disabled />
+                          </td>
+                        `).join('')}
+                        <td><input class="crs-remark-input" type="text" value="${escapeHtml(row.remark)}" aria-label="${escapeHtml(`${row.id} remark`)}" disabled /></td>
+                      </tr>
+                    `;
+                  }).join('')}
+                </tbody>
+              </table>
+            </div>
+          </details>
+        `).join('')}
       </div>
       ${renderCrsEarthResistanceFields(isReadOnly)}
       <p class="sheet-note">Inspection of rust and water with rust must include each hole edge and panel matching portion.</p>
-      <div class="sheet-actions">
-        <button class="primary-button save-sheet" type="button" data-save-sheet>Save</button>
-        <button class="primary-button submit-sheet" type="button" data-submit-sheet>Submit</button>
-        <a class="secondary-button" href="../">Go Back</a>
-      </div>
+      ${renderSheetActions(sectionId)}
     </section>
   `;
 }
@@ -1161,6 +1195,7 @@ function renderDismantlingSheet(sectionId) {
 
   return `
     <section class="sheet-detail dismantling-sheet" aria-label="Dismantling inspection sheet ${activePhase}">
+      ${renderFlowSheetHeader(sectionId)}
       <div class="table-frame applicable-table dismantling-frame">
         <table class="dismantling-table">
           <thead>
@@ -1199,11 +1234,7 @@ function renderDismantlingSheet(sectionId) {
           </tbody>
         </table>
       </div>
-      <div class="sheet-actions">
-        <button class="primary-button save-sheet" type="button" data-save-sheet>Save</button>
-        <button class="primary-button submit-sheet" type="button" data-submit-sheet>Submit</button>
-        <a class="secondary-button" href="../">Go Back</a>
-      </div>
+      ${renderSheetActions(sectionId)}
     </section>
   `;
 }
@@ -1302,8 +1333,9 @@ function renderSection(sectionId) {
     submitApprovalButton.addEventListener('click', () => {
       persistControls();
       workflowState.status = 'pending';
+      syncApprovalPackageToModelRecords();
       saveState();
-      showToast('Package sent to Admin for approval');
+      showToast(`${selectedFlowSheets().length} checksheets sent to Admin as one package`);
       renderSection(commonDetailsSectionId);
     });
   }
@@ -1335,6 +1367,15 @@ function renderSection(sectionId) {
       renderSection(commonDetailsSectionId);
     });
   }
+
+  sectionBody.querySelectorAll('[data-crs-section]').forEach((section) => {
+    section.addEventListener('toggle', () => {
+      if (!section.open) return;
+      sectionBody.querySelectorAll('[data-crs-section]').forEach((otherSection) => {
+        if (otherSection !== section) otherSection.open = false;
+      });
+    });
+  });
 
   sectionBody.querySelectorAll('[data-attachment-input]').forEach((input) => {
     input.addEventListener('change', () => {

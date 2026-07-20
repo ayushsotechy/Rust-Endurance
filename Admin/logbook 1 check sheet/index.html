@@ -3,15 +3,17 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="Rust Endurance checksheet approval requests" />
-    <title>Rust Endurance | Check Sheet Approval Request</title>
+    <meta name="description" content="Admin view of MIC and Admin checksheet records" />
+    <title>Rust Endurance | Admin Logbook Checksheet</title>
     <link rel="stylesheet" href="../model%20menu/styles.css" />
     <link rel="stylesheet" href="./styles.css" />
   </head>
   <body>
     <div class="app-shell">
       <header class="topbar">
-        <a class="brand" href="../entry%20point/" aria-label="Back to Admin menu"><span class="brand-logo-slot" aria-label="Logo placeholder"></span></a>
+        <a class="brand" href="../entry%20point/" aria-label="Back to Admin menu">
+          <span class="brand-logo-slot" aria-label="Logo placeholder"></span>
+        </a>
         <div class="account-area">
           <div class="avatar" aria-hidden="true">SS</div>
           <button class="profile-button" id="profileButton" type="button" aria-expanded="false" aria-controls="profileMenu">
@@ -26,38 +28,45 @@
         </div>
       </header>
 
-      <main class="page-panel approval-panel">
+      <main class="page-panel logbook-panel">
         <div class="page-heading">
           <a class="back-link" href="../entry%20point/" aria-label="Back to Admin menu">←</a>
-          <div><span>Approval Management</span><h1>Check Sheet Approval Request</h1></div>
+          <div><span>MIC &amp; Admin Forms</span><h1>Checksheet Approval Logbook</h1></div>
         </div>
 
-        <form class="approval-filters" id="searchForm">
+        <form class="logbook-filters" id="searchForm">
           <label><span>From Date</span><input id="fromDate" type="date" /></label>
           <label><span>To Date</span><input id="toDate" type="date" /></label>
-          <button class="primary-button search-button" type="submit">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 4.5 4.5"/></svg>
-            Search
-          </button>
-          <button class="primary-button export-button" id="exportExcel" type="button">▣ Export to Excel</button>
+          <label><span>Model</span><input id="modelFilter" type="search" placeholder="Model code" /></label>
+          <label><span>Chassis No.</span><input id="chassisFilter" type="search" placeholder="Chassis number" /></label>
+          <label><span>Raised By</span>
+            <select id="sourceFilter"><option value="">All</option><option>MIC</option><option>Admin</option></select>
+          </label>
+          <button class="primary-button search-button" type="submit">Search</button>
+          <button class="clear-button" id="clearFilters" type="button">Clear</button>
         </form>
 
         <section class="records">
           <div class="records-toolbar">
-            <div><h2>Approval requests</h2><span id="recordCount">0 requests</span></div>
+            <div><h2>Checksheets available for review</h2><span id="recordCount">0 forms</span></div>
           </div>
           <div class="table-frame">
-            <table class="approval-table">
-              <thead><tr><th>Date</th><th>Model</th><th>Chassis</th><th>Status</th><th>Action</th></tr></thead>
-              <tbody id="approvalRows"></tbody>
+            <table class="logbook-table">
+              <thead>
+                <tr><th>Date</th><th>Checksheet Group</th><th>Model</th><th>Chassis No.</th><th>Trial</th><th>Test Type</th><th>Raised By</th><th>Status</th><th>Action</th></tr>
+              </thead>
+              <tbody id="logbookRows"></tbody>
             </table>
             <div class="empty-state" id="emptyState" hidden>
-              <span>⌕</span><strong>No approval requests</strong><p>Try changing the selected date range.</p>
+              <span>⌕</span><strong>No matching forms</strong><p>Change the filters to view more records.</p>
             </div>
           </div>
         </section>
 
-        <a class="secondary-button" href="../entry%20point/">Go Back</a>
+        <div class="footer-actions">
+          <a class="secondary-button" href="../entry%20point/">Go Back</a>
+          <button class="primary-button" id="exportAll" type="button">Export All</button>
+        </div>
       </main>
     </div>
     <div class="toast" id="toast" role="status" aria-live="polite"></div>

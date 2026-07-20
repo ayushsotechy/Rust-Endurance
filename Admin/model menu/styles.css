@@ -77,16 +77,25 @@ input::placeholder, textarea::placeholder { color: #9ca3b8; }
 .records-toolbar h2 { margin: 0; font-size: 1.02rem; }
 .records-toolbar > div > span { color: var(--muted); font-size: .78rem; }
 .table-frame { overflow: auto; min-height: 0; flex: 1; border: 1px solid #dce3f0; border-radius: 14px; background: #eef5ff; box-shadow: 0 10px 30px rgba(40,53,112,.08); }
-table { width: 100%; min-width: 1120px; border-collapse: collapse; text-align: left; }
+table { width: 100%; min-width: 1220px; border-collapse: collapse; text-align: left; }
 th { padding: 11px 12px; color: #fff; background: linear-gradient(180deg,#4094ce,#314590); font-size: .72rem; line-height: 1.2; letter-spacing: .01em; }
 td { height: 48px; padding: 8px 12px; border-bottom: 1px solid #fff; color: #42485d; font-size: .8rem; }
 tbody tr:last-child td { border-bottom: 0; }
 tbody tr:hover td { background: rgba(255,255,255,.47); }
 .model-code { font-weight: 800; color: #27377c; }
 .status-pill { display: inline-flex; padding: 4px 8px; border-radius: 999px; color: #256268; background: #d7f4ef; font-size: .68rem; font-weight: 800; }
+.source-pill, .record-status { display: inline-flex; align-items: center; padding: 4px 8px; border-radius: 999px; font-size: .68rem; font-weight: 800; white-space: nowrap; }
+.source-pill { color: #27377c; background: #dfe7ff; }
+.source-pill--admin { color: #6b2f80; background: #f0dff8; }
+.record-status { color: #9a5a00; background: #fff1d4; }
+.record-status--submitted { color: #17624f; background: #d8f4ea; }
+.record-status--draft { color: #59607a; background: #e9edf5; }
+.record-status--partially-approved { color: #2d5a84; background: #dcecff; }
 .actions { display: flex; gap: 7px; }
 .action-button { width: 28px; height: 28px; border: 0; border-radius: 7px; display: grid; place-items: center; color: #fff; cursor: pointer; background: linear-gradient(145deg,#2465be,#0a8aa0); }
 .action-button.delete { background: linear-gradient(145deg,#3c4ab1,#1a2374); }
+.action-button.approve-all { width: auto; padding: 0 7px; gap: 3px; background: linear-gradient(145deg,#1b70b4,#0b969d); }
+.action-button.approve-all span { font-size: .6rem; font-weight: 900; }
 .action-button:hover { transform: translateY(-1px); }
 .action-button svg { width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
 .empty-state { padding: 38px 20px; text-align: center; color: var(--muted); }

@@ -36,7 +36,7 @@
       <main class="page-panel">
         <div class="page-heading">
           <a class="back-link" href="../entry%20point/" aria-label="Back to Admin menu">←</a>
-          <div><span>Model Management</span><h1>Admin Menu</h1></div>
+          <div><span>Model Management</span><h1>Model Menu</h1></div>
         </div>
 
         <form class="filters" id="searchForm">
@@ -64,19 +64,20 @@
         <section class="records" aria-labelledby="recordsTitle">
           <div class="records-toolbar">
             <div><h2 id="recordsTitle">Model records</h2><span id="recordCount">0 records</span></div>
+            <a class="primary-button add-button" id="addModel" href="../../MIC/model%20menu/model%20addition/?role=admin"><span>＋</span> Add model</a>
           </div>
 
           <div class="table-frame">
             <table>
               <thead>
                 <tr>
-                  <th>Model Code</th><th>Trial</th><th>Chassis No.</th><th>Temp Symbol</th><th>Test Type</th><th>Test Phase Planned</th><th>Location</th><th>Remarks</th><th>Action</th>
+                  <th>Model Code</th><th>Trial</th><th>Chassis No.</th><th>Temp Symbol</th><th>Test Type</th><th>Test Phase Planned</th><th>Location</th><th>Raised By</th><th>Status</th><th>Action</th>
                 </tr>
               </thead>
               <tbody id="modelRows"></tbody>
             </table>
             <div class="empty-state" id="emptyState" hidden>
-              <span>⌕</span><strong>No matching models</strong><p>Try changing the search filters.</p>
+              <span>⌕</span><strong>No matching models</strong><p>Try changing the search filters or add a new record.</p>
             </div>
           </div>
         </section>

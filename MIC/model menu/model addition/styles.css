@@ -561,6 +561,11 @@ button, a { -webkit-tap-highlight-color: transparent; }
   background: #ffe2e7;
 }
 
+.status-pill--recorded {
+  color: #185f64;
+  background: #d9f2f4;
+}
+
 .approval-review__list {
   margin-top: 14px;
   display: grid;
@@ -643,6 +648,13 @@ button, a { -webkit-tap-highlight-color: transparent; }
 
 .common-actions {
   margin-top: 18px;
+}
+
+.save-model-hint {
+  margin: 12px 0 0;
+  color: #6c748c;
+  font-size: .76rem;
+  text-align: center;
 }
 
 .primary-button,
@@ -1082,14 +1094,91 @@ button, a { -webkit-tap-highlight-color: transparent; }
   line-height: 1.25;
 }
 
-.crs-meta-grid {
+.crs-accordion-list {
   display: grid;
-  grid-template-columns: repeat(4, minmax(150px, 1fr));
-  gap: 12px;
+  gap: 9px;
 }
 
-.crs-meta-grid--shared {
-  grid-template-columns: repeat(5, minmax(140px, 1fr));
+.crs-section-accordion {
+  overflow: hidden;
+  border: 1px solid #d5e0f1;
+  border-radius: 11px;
+  background: rgba(255, 255, 255, .78);
+  box-shadow: 0 7px 18px rgba(39, 55, 124, .06);
+}
+
+.crs-section-accordion summary {
+  min-height: 54px;
+  padding: 10px 16px;
+  display: grid;
+  grid-template-columns: 38px minmax(0, 1fr) auto 28px;
+  gap: 12px;
+  align-items: center;
+  color: #24377f;
+  cursor: pointer;
+  list-style: none;
+  user-select: none;
+}
+
+.crs-section-accordion summary::-webkit-details-marker {
+  display: none;
+}
+
+.crs-section-accordion summary:hover {
+  background: #edf5ff;
+}
+
+.crs-section-accordion[open] summary {
+  color: #fff;
+  background: linear-gradient(100deg, #263e91, #168cb0);
+}
+
+.crs-section-number {
+  width: 34px;
+  height: 34px;
+  border-radius: 9px;
+  display: grid;
+  place-items: center;
+  color: #fff;
+  background: linear-gradient(145deg, #3f65c1, #1593b2);
+  font-size: .72rem;
+  font-weight: 900;
+}
+
+.crs-section-accordion[open] .crs-section-number {
+  color: #24418c;
+  background: #fff;
+}
+
+.crs-section-accordion summary strong {
+  overflow-wrap: anywhere;
+  font-size: .88rem;
+}
+
+.crs-section-accordion summary small {
+  color: #6f7994;
+  font-size: .72rem;
+  font-weight: 800;
+}
+
+.crs-section-accordion[open] summary small {
+  color: rgba(255, 255, 255, .8);
+}
+
+.crs-section-chevron {
+  font-size: 1.25rem;
+  text-align: center;
+  transition: transform .18s ease;
+}
+
+.crs-section-accordion[open] .crs-section-chevron {
+  transform: rotate(180deg);
+}
+
+.crs-section-accordion .crs-frame {
+  border: 0;
+  border-top: 1px solid #d5e0f1;
+  border-radius: 0;
 }
 
 .crs-earth-panel {
@@ -1380,6 +1469,33 @@ tbody tr:hover td { background: rgba(255,255,255,.45); }
   vertical-align: middle;
 }
 
+.coupon-underbody td {
+  background: rgba(231, 242, 255, .74);
+}
+
+.coupon-exterior td {
+  background: rgba(237, 249, 243, .78);
+}
+
+.coupon-underhood td {
+  background: rgba(255, 246, 229, .78);
+}
+
+.group-label--underbody {
+  color: #224f88;
+  background: #d6eaff !important;
+}
+
+.group-label--exterior {
+  color: #1d6650;
+  background: #d9f3e8 !important;
+}
+
+.group-label--underhood {
+  color: #815b16;
+  background: #ffedc9 !important;
+}
+
 .multiline-cell {
   white-space: pre-line;
   line-height: 1.45;
@@ -1400,6 +1516,11 @@ tbody tr:hover td { background: rgba(255,255,255,.45); }
   color: #2a3043;
   background: rgba(255, 255, 255, .36);
   outline: none;
+}
+
+.table-input[type="date"] {
+  min-width: 132px;
+  padding-right: 6px;
 }
 
 .table-input:hover {
